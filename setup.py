@@ -32,7 +32,7 @@ setup (name = 'jaraco.nxt',
 		entry_points = {
 		},
 		install_requires=[
-#			'pyserial>=2.2',
+			'pyserial>=2.2',
 		],
 		extras_require = {
 		},
