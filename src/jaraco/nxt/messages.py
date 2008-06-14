@@ -20,7 +20,7 @@ class Message(object):
 		self.payload = payload
 
 	def __str__(self):
-		struct.pack('4b', len(self), self._version, self.payload)
+		return struct.pack('2B', len(self), self._version) + self.payload
 
 	def __len__(self):
 		return len(self.payload)
@@ -31,7 +31,7 @@ class Message(object):
 
 	@classmethod
 	def read(cls, stream):
-		len, ver = struct.unpack('2b', stream.read(2))
+		len, ver = struct.unpack('2B', stream.read(2))
 		assert ver == cls._version
 		assert len > 0
 		return cls(stream.read(len))
@@ -44,7 +44,7 @@ class Command(Message):
 
 	@property
 	def payload(self):
-		return struct.pack('2b', self.expects_reply, self.command)
+		return struct.pack('2B', self.expects_reply, self.command)
 	
 class QueryBattery(Command):
 	_expects_reply = True
@@ -52,5 +52,18 @@ class QueryBattery(Command):
 
 class BatteryResponse(Message):
 	def get_voltage(self):
-		voltage = struct.unpack('h', self.payload[3:5])
+		voltage = struct.unpack('H', self.payload[3:5])
 		return voltage
+
+class PlayTone(Command):
+	command = 0x3
+	
+	def __init__(self, frequency, duration = 100):
+		assert 200 <= frequency <= 3000
+		self.frequency = frequency
+		self.duration = duration
+
+	@property
+	def payload(self):
+		additional_payload = struct.pack('2H', self.frequency, self.duration)
+		return super(PlayTone, self).payload + additional_payload
