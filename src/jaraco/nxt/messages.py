@@ -67,3 +67,15 @@ class PlayTone(Command):
 	def payload(self):
 		additional_payload = struct.pack('2H', self.frequency, self.duration)
 		return super(PlayTone, self).payload + additional_payload
+
+class SendMailboxMessage(Command):
+	command = 0x9
+	
+	def __init__(self, message, box_number=1):
+		self.box = box_number-1
+		self.message = message
+
+	@property
+	def payload(self):
+		additional_payload = struct.pack('B', self.box) + self.message + '\x00'
+		return super(SendMailboxMessage, self).payload + additional_payload
