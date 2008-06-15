@@ -33,6 +33,8 @@ setup (name = 'jaraco.nxt',
 		},
 		install_requires=[
 			'pyserial>=2.2',
+			'enum>=0.4.3',
+			'jaraco.util>=1.1dev_r516',
 		],
 		extras_require = {
 		},

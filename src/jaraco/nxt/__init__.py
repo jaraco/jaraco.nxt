@@ -17,6 +17,7 @@ __svnauthor__='$Author$'[9:-2]
 import serial
 import struct
 import re
+import time
 
 from messages import *
 
@@ -59,3 +60,10 @@ def get_voltage(conn):
 	conn.send(cmd)
 	response = conn.receive(BatteryResponse)
 	return response.get_voltage()
+
+def cycle_motor_a(conn):
+	cmd = SetOutputState(OutputPort.a, motor_on=True, set_power=70, run_state=RunState.running)
+	conn.send(cmd)
+	time.sleep(2)
+	cmd = SetOutputState(OutputPort.a)
+	conn.send(cmd)
