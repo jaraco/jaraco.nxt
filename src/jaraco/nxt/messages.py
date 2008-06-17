@@ -23,6 +23,12 @@ class Message(object):
 	
 	def __init__(self, payload):
 		self.payload = payload
+		self.parse_payload()
+
+	def parse_payload(self):
+		if hasattr(self, 'fields') and hasattr(self, 'structure'):
+			values = struct.unpack(self.structure, self.payload)
+			map(lambda f,v: setattr(self, f, v), self.fields, self.values)
 
 	def __str__(self):
 		assert len(self) <= 64
@@ -59,7 +65,11 @@ class Command(Message):
 
 	@property
 	def payload(self):
-		return struct.pack('2B', self.expects_reply, self.command)
+		header = struct.pack('2B', self.expects_reply, self.command)
+		message = header + self.get_telegram()
+
+	def get_telegram(self):
+		return ''
 
 class StartProgram(Command):
 	command = 0x00
@@ -74,9 +84,8 @@ class StartProgram(Command):
 		kwargs['filename'] = filename
 		super(StartProgram, self).__init__(**kwargs)
 		
-	@property
-	def payload(self):
-		return super(StartProgram, self).payload + self.filename + '\x00'
+	def get_telegram(self):
+		return self.filename + '\x00'
 
 class SpecEnum(object):
 
@@ -152,15 +161,15 @@ class SetOutputState(Command):
 	@property
 	def mode_byte(self):
 		mode_byte = reduce(operator.or_, (
+			# todo, this is probably incorrect
 			self.motor_on & OutputMode.motor_on,
 			self.use_brake & OutputMode.brake,
 			self.use_regulation & OutputMode.regulated,
 			))
 		return mode_byte
 		
-	@property
-	def payload(self):
-		add_payload = struct.pack('BbBBbBL',
+	def get_telegram(self):
+		return struct.pack('BbBBbBL',
 			self.port,
 			self.set_power,
 			self.mode_byte,
@@ -169,9 +178,100 @@ class SetOutputState(Command):
 			self.run_state,
 			self.tacho_limit,
 			)
-		return super(SetOutputState, self).payload + add_payload
 
+class SensorType(SpecEnum):
+	no_sensor = 0
+	switch = 1
+	temperature = 2
+	reflection = 3
+	angle = 4
+	light_active = 5
+	light_inactive = 6
+	sound_db = 7
+	sound_dba = 8
+	custom = 9
+	lowspeed = 0xa
+	lowspeed_9v = 0xb
+	no_of_sensor_types = 0xc
+
+class SensorMode(SpecEnum):
+	raw = 0
+	boolean = 0x20
+	transition_count = 0x40
+	period_counter = 0x60
+	pct_full_scale = 0x80
+	celcius = 0xA0
+	fahrenheit = 0xC0
+	angle_steps = 0xE0
+	slope_mask = 0x1F
+	mode_mask = 0xE0
+	
+class SetInputMode(Command):
+	command = 0x5
+	
+	def __init__(self, port, type, mode):
+		assert port in range(4)
+		assert type in SensorType.values()
+		assert mode in SensorMode.values()
+
+		values = vars()
+		values.pop('self')
 		
+		self.set(values)
+
+	def get_telegram(self):
+		return struct.pack('BBB', self.port, self.type, self.mode)
+
+class OutputState(Message):
+	fields = (
+		'status', 'port', 'power_set', 'mode', 'regulation_mode',
+		'turn_ratio', 'run_state', 'tacho_limit', 'tacho_count',
+		'block_tacho_count', 'rotation_count',
+		)
+	structure = 'BBbBBbBLlll'
+
+	@property
+	def motor_on(self):
+		return bool(self.mode & OutputMode.motor_on)
+
+	@property
+	def use_brake(self):
+		return bool(self.mode & OutputMode.use_break)
+
+	@property
+	def use_regulation(self):
+		return bool(self.mode & OutputMode.regulated)
+
+class GetOutputState(Command):
+	command = 0x6
+	_expects_reply = OutputState
+	
+	def __init__(self, port):
+		assert port in OutputPort.values()
+		self.port = port
+		
+	def get_telegram(self):
+		return struct.pack('B', self.port)
+
+class InputValues(Message):
+	fields = (
+		'status', 'port', 'valid', 'calibrated',
+		'type', 'mode', 'value', 'normalized_value',
+		'scaled_value', 'calibrated_value',
+		)
+	structure = 'BBBBBBHHhh'
+
+class GetInputValues(Command):
+	command = 0x7
+	_expects_reply = InputValues
+	
+	def __init__(self, port):
+		assert port in InputPorts.values()
+		self.port = port
+
+	def get_telegram(self):
+		return struct.pack('B', self.port)
+
 class GetVersion(Command):
 	_expects_reply = True
 	command = 0x88
@@ -197,22 +297,38 @@ class PlayTone(Command):
 		self.frequency = frequency
 		self.duration = duration
 
-	@property
-	def payload(self):
-		additional_payload = struct.pack('2H', self.frequency, self.duration)
-		return super(PlayTone, self).payload + additional_payload
+	def get_telegram(self):
+		return struct.pack('2H', self.frequency, self.duration)
 
-class SendMailboxMessage(Command):
+class CurrentProgramName(Message):
+	def parse_values(self):
+		self.status = self.payload[0]
+		self.filename = self.payload[1:]
+
+class GetCurrentProgramName(Command):
+	command = 0x11
+	_expects_reply = CurrentProgramName
+	
+class SleepTimeout(Message):
+	"value is the timeout in milliseconds"
+	fields = 'status', 'value'
+	structure = 'BL'
+
+class KeepAlive(Command):
+	command = 0xD
+	_expects_reply = SleepTimeout
+
+class MessageWrite(Command):
 	command = 0x9
 	
 	def __init__(self, message, box_number=1):
+		assert 0 < box_number <= 10, 'invalid box number %s' % box_number
 		self.box = box_number-1
 		self.message = message
 
-	@property
-	def payload(self):
-		additional_payload = struct.pack('B', self.box) + self.message + '\x00'
-		return super(SendMailboxMessage, self).payload + additional_payload
+	def get_telegram(self):
+		message = message + '\x00'
+		return struct.pack('BB', self.box, len(message)) + message
 
 class ReadMailboxMessage(Command):
 	_expects_reply = True
