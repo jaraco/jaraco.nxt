@@ -73,6 +73,7 @@ class Command(Message):
 	def payload(self):
 		header = struct.pack('2B', self.expects_reply, self.command)
 		message = header + self.get_telegram()
+		return message
 
 	def get_telegram(self):
 		self.validate_settings()
@@ -140,7 +141,7 @@ class SetOutputState(Command):
 	command = 0x04
 	fields = (
 		'port', 'set_power', 'mode_byte', 'regulation_mode',
-		'turn_radio', 'run_state', 'tacho_limit',
+		'turn_ratio', 'run_state', 'tacho_limit',
 		)
 	structure = 'BbBBbBL'
 	
@@ -356,15 +357,14 @@ class MessageWrite(Command):
 	
 class ResetMotorPosition(Command):
 	command = 0xa
+	fields = 'port', 'relative'
+	structure = 'BB'
 	
-	def validate_settings
-	def __init__(self, port, relative=True):
-		assert port in OutputPort.values()
-		self.port = port
-		self.relative = relative
+	def validate_settings(self):
+		assert self.port in OutputPort.values()
 
-	def get_telegram(self):
-		return struct.pack('BB', self.port, self.relative)
+	def __init__(self, port, relative=True):
+		self.set(port=port, relative=relative)
 
 class StopSoundPlayback(Command):
 	command = 0xc

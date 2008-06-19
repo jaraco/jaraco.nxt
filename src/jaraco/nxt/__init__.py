@@ -54,16 +54,3 @@ class Connection(object):
 			
 	def close(self):
 		self._conn.close()
-		
-def get_voltage(conn):
-	cmd = QueryBattery()
-	conn.send(cmd)
-	response = conn.receive(BatteryResponse)
-	return response.get_voltage()
-
-def cycle_motor_a(conn):
-	cmd = SetOutputState(OutputPort.a, motor_on=True, set_power=70, run_state=RunState.running)
-	conn.send(cmd)
-	time.sleep(2)
-	cmd = SetOutputState(OutputPort.a)
-	conn.send(cmd)
