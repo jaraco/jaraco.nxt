@@ -34,7 +34,24 @@ def struct_dict(struct):
 	"""
 	get_pair = lambda (field, type): (field, getattr(struct, field))
 	return dict(map(get_pair, struct._fields_))
-		
+
+def get_bit_values(number, size=32):
+	res = list(gen_bit_values(number))
+	res.reverse()
+	# 0-pad the most significant bit
+	res = [0]*(size-len(res)) + res
+	return res
+
+def gen_bit_values(number):
+	"""
+	Return a zero or one for each bit of a numeric value up to the most
+	significant 1 bit, beginning with the least significant bit.
+	"""
+	number = long(number)
+	while number:
+		yield number & 0x1
+		number >>= 1
+
 ERROR_DEVICE_NOT_CONNECTED = 1167
 ERROR_SUCCESS = 0
 
@@ -100,8 +117,8 @@ class XInputJoystick(event.EventDispatcher):
 				self.dispatch_event('on_axis', axis, new_val)
 
 	def dispatch_button_events(self, state):
-		# todo: implement this
-		pass
+		changed = state.gamepad.buttons ^ self._last_state.gamepad.buttons
+		print list(reversed(get_bit_values(changed, 16)))
 		
 	def on_state_changed(self, state):
 		pass
