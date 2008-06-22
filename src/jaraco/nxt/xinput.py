@@ -46,7 +46,7 @@ class XInputJoystick(event.EventDispatcher):
 	def __init__(self, device_number):
 		self.device_number = device_number
 		super(XInputJoystick, self).__init__()
-		self._last_state = XINPUT_STATE()
+		self._last_state = self.get_state()
 		self.received_packets = 0
 		self.missed_packets = 0
 
@@ -59,14 +59,14 @@ class XInputJoystick(event.EventDispatcher):
 			raise RuntimeError, "Unknown error %d attempting to get state of device %d" % (res, self.device_number)
 		# else return None
 
+	def is_connected(self):
+		return bool(self._last_state)
+
 	@staticmethod
 	def enumerate_devices():
 		"Returns the devices that are connected"
 		devices = map(XInputJoystick, range(XInputJoystick.max_devices))
-		states = map(lambda d: d.get_state(), devices)
-		is_connected = lambda (d, s): s
-		connected_devices = filter(is_connected, zip(devices, states))
-		return map(itemgetter(0), connected_devices)
+		return filter(lambda d: d.is_connected(), devices)
 
 	def dispatch_events(self):
 		state = self.get_state()
@@ -80,8 +80,9 @@ class XInputJoystick(event.EventDispatcher):
 
 	def update_packet_count(self, state):
 		self.received_packets += 1
-		self.missed_packets += state.packet_number - self._last_state.packet_number - 1
-		print 'received', self.received_packets, 'missed', self.missed_packets
+		missed_packets = state.packet_number - self._last_state.packet_number - 1
+		self.dispatch_event('on_missed_packet', missed_packets)
+		self.missed_packets += missed_packets
 
 	def handle_changed_state(self, state):
 		self.dispatch_event('on_state_changed', state)
@@ -111,9 +112,15 @@ class XInputJoystick(event.EventDispatcher):
 	def on_button(self, button, pressed):
 		pass
 
-XInputJoystick.register_event_type('on_axis')
-XInputJoystick.register_event_type('on_button')
-XInputJoystick.register_event_type('on_state_changed')
+	def on_missed_packet(self, number):
+		pass
+
+map(XInputJoystick.register_event_type, [
+	'on_state_changed',
+	'on_axis',
+	'on_button',
+	'on_missed_packet',
+])
 
 if __name__ == "__main__":
 	joysticks = XInputJoystick.enumerate_devices()
