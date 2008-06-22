@@ -47,6 +47,8 @@ class XInputJoystick(event.EventDispatcher):
 		self.device_number = device_number
 		super(XInputJoystick, self).__init__()
 		self._last_state = XINPUT_STATE()
+		self.received_packets = 0
+		self.missed_packets = 0
 
 	def get_state(self):
 		state = XINPUT_STATE()
@@ -71,9 +73,15 @@ class XInputJoystick(event.EventDispatcher):
 		if not state:
 			raise RuntimeError, "Joystick %d is not connected" % self.device_number
 		if state.packet_number != self._last_state.packet_number:
+			self.update_packet_count(state)
 			# state has changed, handle the change
 			self.handle_changed_state(state)
 		self._last_state = state
+
+	def update_packet_count(self, state):
+		self.received_packets += 1
+		self.missed_packets += state.packet_number - self._last_state.packet_number - 1
+		print 'received', self.received_packets, 'missed', self.missed_packets
 
 	def handle_changed_state(self, state):
 		self.dispatch_event('on_state_changed', state)
