@@ -5,6 +5,7 @@ import sys
 import time
 from operator import itemgetter, attrgetter
 from itertools import count, starmap
+from pyglet import event
 
 class XINPUT_GAMEPAD(ctypes.Structure):
 	_fields_ = [
@@ -57,17 +58,32 @@ def gen_bit_values(number):
 ERROR_DEVICE_NOT_CONNECTED = 1167
 ERROR_SUCCESS = 0
 
-from pyglet import event
-
 class XInputJoystick(event.EventDispatcher):
 	max_devices = 4
 	
-	def __init__(self, device_number):
-		self.device_number = device_number
+	def __init__(self, device_number, normalize_axes=True):
+		values = vars()
+		del values['self']
+		self.__dict__.update(values)
+		
 		super(XInputJoystick, self).__init__()
+		
 		self._last_state = self.get_state()
 		self.received_packets = 0
 		self.missed_packets = 0
+		
+		self.translate = self.translate_identity
+		if normalize_axes:
+			self.translate = self.translate_using_data_size
+
+	def translate_using_data_size(self, value, data_size):
+		# normalizes analog data to [0,1] for unsigned data
+		#  and [-0.5,0.5] for signed data
+		data_bits = 8*data_size
+		return float(value)/(2**data_bits-1)
+
+	def translate_identity(self, value, data_size=None):
+		return value
 
 	def get_state(self):
 		state = XINPUT_STATE()
@@ -110,11 +126,14 @@ class XInputJoystick(event.EventDispatcher):
 		self.dispatch_button_events(state)
 		
 	def dispatch_axis_events(self, state):
-		axis_fields = map(itemgetter(0), XINPUT_GAMEPAD._fields_)
-		axis_fields.remove('buttons')
-		for axis in axis_fields:
+		axis_fields = dict(XINPUT_GAMEPAD._fields_)
+		axis_fields.pop('buttons')
+		for axis, type in axis_fields.items():
 			old_val = getattr(self._last_state.gamepad, axis)
 			new_val = getattr(state.gamepad, axis)
+			data_size = ctypes.sizeof(type)
+			old_val = self.translate(old_val, data_size)
+			new_val = self.translate(new_val, data_size)
 			# todo: implement some tolerance and deadzones to dampen noise
 			if old_val != new_val:
 				self.dispatch_event('on_axis', axis, new_val)
@@ -194,6 +213,7 @@ def sample_first_joystick():
 		sys.exit(0)
 	
 	j = joysticks[0]
+	print 'using %d' % j.device_number
 		
 	@j.event
 	def on_button(button, pressed):
