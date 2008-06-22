@@ -67,9 +67,9 @@ class XInputJoystick(event.EventDispatcher):
 		return map(itemgetter(0), connected_devices)
 
 	def dispatch_events(self):
-		res = self.get_state()
-		if res != ERROR_SUCCESS:
-			return # or should i raise an exception?
+		state = self.get_state()
+		if not state:
+			raise RuntimeError, "Joystick %d is not connected" % self.device_number
 		if state.packet_number != self._last_state.packet_number:
 			# state has changed, handle the change
 			self.handle_changed_state(state)
@@ -126,10 +126,10 @@ if __name__ == "__main__":
 	def on_axis(axis, value):
 		print 'axis', axis, value
 
-	@j.event
-	def on_state_changed(state):
-		print 'state has changed', state.dwPacketNumber
-		print struct_dict(state.Gamepad)
+	#@j.event
+	#def on_state_changed(state):
+	#	print 'state has changed', state.packet_number
+	#	print struct_dict(state.gamepad)
 
 	import time
 	while True:
