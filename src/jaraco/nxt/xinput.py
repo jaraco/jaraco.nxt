@@ -2,7 +2,9 @@
 
 import ctypes
 import sys
+import time
 from operator import itemgetter, attrgetter
+from itertools import count, starmap
 
 class XINPUT_GAMEPAD(ctypes.Structure):
 	_fields_ = [
@@ -98,7 +100,8 @@ class XInputJoystick(event.EventDispatcher):
 	def update_packet_count(self, state):
 		self.received_packets += 1
 		missed_packets = state.packet_number - self._last_state.packet_number - 1
-		self.dispatch_event('on_missed_packet', missed_packets)
+		if missed_packets:
+			self.dispatch_event('on_missed_packet', missed_packets)
 		self.missed_packets += missed_packets
 
 	def handle_changed_state(self, state):
@@ -118,7 +121,16 @@ class XInputJoystick(event.EventDispatcher):
 
 	def dispatch_button_events(self, state):
 		changed = state.gamepad.buttons ^ self._last_state.gamepad.buttons
-		print list(reversed(get_bit_values(changed, 16)))
+		changed = get_bit_values(changed, 16)
+		buttons_state = get_bit_values(state.gamepad.buttons, 16)
+		changed.reverse()
+		buttons_state.reverse()
+		button_numbers = count(1)
+		changed_buttons = filter(itemgetter(0), zip(changed, button_numbers, buttons_state))
+		tuple(starmap(self.dispatch_button_event, changed_buttons))
+
+	def dispatch_button_event(self, changed, number, pressed):
+		self.dispatch_event('on_button', number, pressed)
 		
 	def on_state_changed(self, state):
 		pass
@@ -139,7 +151,40 @@ map(XInputJoystick.register_event_type, [
 	'on_missed_packet',
 ])
 
-if __name__ == "__main__":
+def determine_optimal_sample_rate(joystick=None):
+	# in my experience, you want to probe at 200-2000Hz for optimal
+	#  performance
+	if joystick is None: joystick = XInputJoystick.enumerate_devices()[0]
+	
+	j = joystick
+	
+	print "Move the joystick or generate button events characteristic of your app"
+	print "Hit Ctrl-C or press button 6 (<, Back) to quit."
+	
+	# begin at 1Hz and work up until missed messages are eliminated
+	j.probe_frequency = 1 #Hz
+	j.quit = False
+	j.target_reliability = .99 # okay to lose 1 in 100 messages
+	
+	@j.event
+	def on_button(button, pressed):
+		j.quit = (button == 6 and pressed)
+
+	@j.event
+	def on_missed_packet(number):
+		print 'missed %(number)d packets' % vars()
+		total = j.received_packets + j.missed_packets
+		reliability = j.received_packets / float(total)
+		if reliability < j.target_reliability:
+			j.missed_packets = j.received_packets = 0
+			j.probe_frequency *= 1.5
+	
+	while not j.quit:
+		j.dispatch_events()
+		time.sleep(1.0/j.probe_frequency)
+	print "final probe frequency was %s Hz" % j.probe_frequency
+
+def sample_first_joystick():
 	joysticks = XInputJoystick.enumerate_devices()
 	device_numbers = map(attrgetter('device_number'), joysticks)
 	
@@ -163,7 +208,14 @@ if __name__ == "__main__":
 	#	print 'state has changed', state.packet_number
 	#	print struct_dict(state.gamepad)
 
-	import time
+	#@j.event
+	#def on_missed_packet(number):
+	#	print 'missed %(number)d packets' % vars()
+
 	while True:
 		j.dispatch_events()
 		time.sleep(.01)
+
+if __name__ == "__main__":
+	sample_first_joystick()
+	#determine_optimal_sample_rate()
