@@ -28,8 +28,8 @@ class MotorController(object):
 		self.input.event(self.on_state_changed)
 
 	def on_state_changed(self, state):
-		a_reverse = self.input.translate(state.gamepad.left_trigger, 2)
-		a_forward = self.input.translate(state.gamepad.right_trigger, 2)
+		a_reverse = self.input.translate(state.gamepad.left_trigger, 1)
+		a_forward = self.input.translate(state.gamepad.right_trigger, 1)
 		a_power = (a_forward - a_reverse) * 100
 		if abs(a_power) > 50:
 			cmd = SetOutputState(OutputPort.a, motor_on=True, set_power=a_power, run_state=RunState.running)
