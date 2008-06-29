@@ -12,10 +12,26 @@ __svnauthor__='$Author$'[9:-2]
 import struct
 import re
 import operator
-from jaraco.nxt._enum import *
+import logging
+from _enum import *
+
+log = logging.getLogger(__name__)
+
+class MetaMessage(type):
+	""
+	
+	"A map of message classes by byte code"
+	_messages = {}
+	
+	def __init__(cls, name, bases, attrs):
+		if 'command' in attrs:
+			code = attrs['command']
+			cls._messages[code] = cls
 
 class Message(object):
 	"A raw message to or from the NXT"
+	
+	__metaclass__ = MetaMessage
 	
 	_expects_reply = False
 	fields = ()
@@ -26,8 +42,11 @@ class Message(object):
 		self.parse_payload()
 
 	def parse_payload(self):
-		values = struct.unpack(self.structure, self.payload)
-		map(lambda f,v: setattr(self, f, v), self.fields, values)
+		try:
+			values = struct.unpack(self.structure, self.payload)
+			map(lambda f,v: setattr(self, f, v), self.fields, values)
+		except struct.error:
+			log.warning("Payload does not match structure")
 
 	def __str__(self):
 		assert len(self) <= 64
@@ -40,12 +59,23 @@ class Message(object):
 	def expects_reply(self):
 		return [0x80, 0][self._expects_reply]
 
-	@classmethod
-	def read(cls, stream):
-		len, ver = struct.unpack('2B', stream.read(2))
-		assert ver == cls._version
-		assert len > 0
-		return cls(stream.read(len))
+	@staticmethod
+	def read(stream):
+		len = struct.unpack('H', stream.read(2))[0]
+		assert len >= 2
+		payload = stream.read(len)
+		command_type, command = struct.unpack('BB', payload[:2])
+		try:
+			cls = Message._messages[command]
+			is_reply = command_type == CommandTypes.reply
+			if is_reply:
+				if issubclass(cls._expects_reply, Message):
+					cls = cls._expects_reply
+		except KeyError, e:
+			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
+			cls = Message
+		print "cls is", cls
+		return cls(payload)
 
 class Command(Message):
 	_expects_reply = False
@@ -142,6 +172,18 @@ class SetOutputState(Command):
 			))
 		return mode_byte
 
+class Reply(Message):
+	fields = ('status',)
+	structure = 'B'
+
+class PlaySoundFile(Command):
+	command = 0x2
+	fields = 'loop', 'filename'
+	structure = 'B19p'
+
+	def validate_settings(self):
+		assert type(loop) is bool
+
 class SetInputMode(Command):
 	command = 0x5
 	fields = 'port', 'type', 'mode'
@@ -214,7 +256,7 @@ class GetInfo(Command):
 	_expects_reply = True
 	command = 0x9B
 	
-class BatteryResponse(Message):
+class BatteryResponse(Reply):
 	fields = 'status', 'millivolts'
 	structure = 'BH'
 	
@@ -335,9 +377,7 @@ class LSWrite(Command):
 		values.pop('self')
 		self.set(values)
 
-class StatusResponse(Message):
-	fields = ('status',)
-	structure = 'B'
+class StatusResponse(Reply): pass
 
 class LSReadResponse(Message):
 	fields = ('status', 'data')

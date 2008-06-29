@@ -19,7 +19,7 @@ setup (name = 'jaraco.nxt',
 		description = 'Logo Mindstorms NXT Routines',
 		author = 'Jason R. Coombs',
 		author_email = 'jaraco@jaraco.com',
-		url = 'http://www.jaraco.com/',
+		url = 'http://www.jaraco.com/projects/jaraco.nxt',
 		packages = find_packages('src'),
 		package_dir = {'':'src'},
 		namespace_packages = ['jaraco',],
@@ -34,13 +34,12 @@ setup (name = 'jaraco.nxt',
 		install_requires=[
 			'pyserial>=2.2',
 			'enum>=0.4.3',
-			'jaraco.util>=1.1dev_r516',
+			'jaraco.util>=1.1',
 			'pyglet',
 		],
 		extras_require = {
 		},
 		dependency_links = [
-			"http://www.jaraco.com/ASP/eggs",
 		],
 		tests_require=[
 			'nose>=0.10',

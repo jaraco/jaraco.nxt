@@ -4,7 +4,7 @@
 
 from enum import Enum
 
-CommandTypes = Enum('direct', 'system')
+CommandTypes = Enum('direct', 'system', 'reply')
 
 class SpecEnum(object):
 

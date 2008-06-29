@@ -16,41 +16,24 @@ __svnauthor__='$Author$'[9:-2]
 
 import serial
 import struct
-import re
 import time
 
-from messages import *
+import messages
 
-class Connection(object):
-	"A low-level connection to an NXT brick"
-	huh = struct.pack('h', 2432) # don't really know what this is
-
-	def __init__(self, comport, timeout=1):
-		comport = self.__adapt_comport_string(comport)
-		self._conn = serial.Serial(comport, timeout=timeout)
-
-	@staticmethod
-	def __adapt_comport_string(comport):
-		pattern = re.compile('COM(%d+)')
-		matcher = pattern.match(comport)
-		if matcher:
-			comport = int(matcher.group(1))-1
-		return comport
-
-	def receive(self, cls=Message):
-		'return Message'
-		msg = cls.read(self._conn)
-		return msg
+class Connection(serial.Serial):
+	"""
+	A low-level connection to an NXT brick
+	
+	Requires that the brick is already paired with this device using
+	Bluetooth.
+	
+	Example usage:
+	conn = Connection('COM3')
+	"""
+	def receive(self):
+		'Receive a message from the NXT'
+		return messages.Message.read(self)
 
 	def send(self, message):
 		"Send a message to the NXT"
-		self._conn.write(str(message))
-
-	def __del__(self):
-		try:
-			self.close()
-		except:
-			pass
-			
-	def close(self):
-		self._conn.close()
+		self.write(str(message))

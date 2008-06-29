@@ -11,7 +11,7 @@ __svnauthor__='$Author$'[9:-2]
 
 import time
 
-from jaraco.nxt.messages import *
+from messages import *
 
 def get_voltage(conn):
 	cmd = QueryBattery()
