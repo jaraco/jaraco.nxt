@@ -43,14 +43,16 @@ class Message(object):
 
 	def parse_payload(self):
 		try:
-			values = struct.unpack(self.structure, self.payload)
+			values = struct.unpack('<'+self.structure, self.payload[2:])
 			map(lambda f,v: setattr(self, f, v), self.fields, values)
 		except struct.error:
 			log.warning("Payload does not match structure")
+			log.debug("Payload is %r", self.payload)
+			log.debug("Structure is %r", self.structure)
 
 	def __str__(self):
 		assert len(self) <= 64
-		return struct.pack('H', len(self)) + self.payload
+		return struct.pack('<H', len(self)) + self.payload
 
 	def __len__(self):
 		return len(self.payload)
@@ -61,10 +63,10 @@ class Message(object):
 
 	@staticmethod
 	def read(stream):
-		len = struct.unpack('H', stream.read(2))[0]
+		len = struct.unpack('<H', stream.read(2))[0]
 		assert len >= 2
 		payload = stream.read(len)
-		command_type, command = struct.unpack('BB', payload[:2])
+		command_type, command = struct.unpack('<BB', payload[:2])
 		try:
 			cls = Message._messages[command]
 			is_reply = command_type == CommandTypes.reply
@@ -99,14 +101,14 @@ class Command(Message):
 
 	@property
 	def payload(self):
-		header = struct.pack('2B', self.expects_reply, self.command)
+		header = struct.pack('<2B', self.expects_reply, self.command)
 		message = header + self.get_telegram()
 		return message
 
 	def get_telegram(self):
 		self.validate_settings()
 		values = map(lambda f: getattr(self, f), self.fields)
-		return struct.pack(self.structure, *values)
+		return struct.pack('<'+self.structure, *values)
 
 class StartProgram(Command):
 	command = 0x00

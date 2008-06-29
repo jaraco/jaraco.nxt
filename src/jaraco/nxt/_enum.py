@@ -2,9 +2,27 @@
 
 # $Id$
 
-from enum import Enum
+"""
+This enum module fills a different niche than the
+enum package as found in PyPI.  In particular, it allows
+access to the values, allowing them to be enumerate and
+compared against integers
 
-CommandTypes = Enum('direct', 'system', 'reply')
+>>> class MyEnum(SpecEnum):
+...   x = 1
+...   y = 2
+...   z = 40
+
+>>> 'z' in MyEnum.keys()
+True
+>>> MyEnum.x == 1
+True
+
+You can retrieve the enumerated values as a dictionary also:
+>>> MyEnum.dictionary() == {'x': 1, 'y': 2, 'z': 40}
+True
+
+"""
 
 class SpecEnum(object):
 
@@ -20,6 +38,11 @@ class SpecEnum(object):
 	@classmethod
 	def values(cls):
 		return cls.dictionary().values()
+
+class CommandTypes(SpecEnum):
+	direct = 0
+	system = 1
+	reply = 2
 
 class OutputPort(SpecEnum):
 	a = 0
