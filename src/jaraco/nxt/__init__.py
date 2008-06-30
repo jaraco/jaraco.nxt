@@ -20,6 +20,9 @@ import time
 
 import messages
 
+def add_options(parser):
+	parser.add_option("-p", "--port")
+
 class Connection(serial.Serial):
 	"""
 	A low-level connection to an NXT brick

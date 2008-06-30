@@ -22,6 +22,7 @@ setup (name = 'jaraco.nxt',
 		url = 'http://www.jaraco.com/projects/jaraco.nxt',
 		packages = find_packages('src'),
 		package_dir = {'':'src'},
+		zip_safe=True,
 		namespace_packages = ['jaraco',],
 		license = 'MIT',
 		classifiers = [
@@ -29,8 +30,11 @@ setup (name = 'jaraco.nxt',
 			"Intended Audience :: Developers",
 			"Programming Language :: Python",
 		],
-		entry_points = {
-		},
+		entry_points = dict(
+			console_scripts = [
+				'nxt-control = jaraco.nxt.controller:serve_forever',
+			],
+		),
 		install_requires=[
 			'pyserial>=2.2',
 			'enum>=0.4.3',
