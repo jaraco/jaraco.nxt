@@ -11,7 +11,9 @@ functions to facilitate input
 __author__='Jason R. Coombs <jaraco@jaraco.com>'
 __svnauthor__='$Author$'[9:-2]
 
+import jaraco.nxt
 from jaraco.nxt.xinput import XInputJoystick
+from jaraco.nxt import Connection
 from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
 
 from pyglet import event
@@ -30,10 +32,22 @@ class MotorController(object):
 		r_thumb_y = OutputPort.c,
 		)
 	scale_exponent = .3
-		
-	def __init__(self, conn):
-		self.conn = conn
-		self.input = XInputJoystick.enumerate_devices()[0]
+	scale_a = 1
+	scale_b = 1
+	scale_c = 1
+	
+	def __init__(self, options):
+		self.conn = Connection(options.port)
+		if options.scale_a:
+			self.scale_a = options.scale_a
+		if options.scale_b:
+			self.scale_b = options.scale_b
+		if options.scale_c:
+			self.scale_c = options.scale_c
+		try:
+			self.input = XInputJoystick.enumerate_devices()[0]
+		except IndexError:
+			raise RuntimeError, "Could not find any connected controllers"
 		self.input.event(self.on_state_changed)
 
 	def on_state_changed(self, state):
@@ -42,13 +56,17 @@ class MotorController(object):
 		a_reverse = self.input.translate(state.gamepad.left_trigger, 1)
 		a_forward = self.input.translate(state.gamepad.right_trigger, 1)
 		a_power = a_forward - a_reverse
+		a_power *= self.scale_a
+		
 		# note a_power in [-1, 1]
 		self.set_port(OutputPort.a, a_power)
 		
-		b_power = self.input.translate(state.gamepad.r_thumb_y, 2)*2
+		b_power = self.input.translate(state.gamepad.l_thumb_y, 2)*2
+		b_power *= self.scale_b
 		self.set_port(OutputPort.b, b_power)
 		
-		c_power = self.input.translate(state.gamepad.l_thumb_y, 2)*2
+		c_power = self.input.translate(state.gamepad.r_thumb_y, 2)*2
+		c_power *= self.scale_c
 		self.set_port(OutputPort.c, c_power)
 
 	def set_port(self, port, power):
@@ -79,18 +97,22 @@ class MotorController(object):
 			cmd = SetOutputState(port)
 		self.conn.send(cmd)
 
+	@staticmethod
+	def add_options(parser):
+		parser.add_option('--scale_a', type="float")
+		parser.add_option('--scale_b', type="float")
+		parser.add_option('--scale_c', type="float")
+
 def _get_options():
 	from optparse import OptionParser
-	from jaraco.nxt import add_options
 	parser = OptionParser()
-	add_options(parser)
+	jaraco.nxt.add_options(parser)
+	MotorController.add_options(parser)
 	options, args = parser.parse_args()
 	return options
 
 def serve_forever():
-	from jaraco.nxt import Connection
-	options = _get_options()
-	controller = MotorController(Connection(options.port))
+	controller = MotorController(_get_options())
 	while True:
 		try:
 			controller.input.dispatch_events()
