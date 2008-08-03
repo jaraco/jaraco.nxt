@@ -79,6 +79,11 @@ class Message(object):
 		assert len >= 2
 		payload = stream.read(len)
 		command_type, command = struct.unpack('<BB', payload[:2])
+		cls = Message.determine_reply_class(command_type, command)
+		return cls(payload)
+
+	@staticmethod
+	def determine_reply_class(command_type, command):
 		try:
 			cls = Message._messages[command]
 			is_reply = command_type == CommandTypes.reply
@@ -88,10 +93,13 @@ class Message(object):
 		except KeyError, e:
 			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
 			cls = Message
-		return cls(payload)
+		return cls
+
 
 class Command(Message):
+	"Base class for commands to be sent to a NXT device"
 	expected_reply = None
+	# so far, the only command type implemented is 'direct'
 	_command_type = CommandTypes.direct
 	
 	def __init__(self, *args):
@@ -186,6 +194,7 @@ class SetOutputState(Command):
 		return mode_byte
 
 class Reply(Message):
+	"A simple status response"
 	fields = ('status',)
 	structure = 'B'
 
