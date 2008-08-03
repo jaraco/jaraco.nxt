@@ -88,7 +88,6 @@ class Message(object):
 		except KeyError, e:
 			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
 			cls = Message
-		print "cls is", cls
 		return cls(payload)
 
 class Command(Message):
