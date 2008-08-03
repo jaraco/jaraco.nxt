@@ -1,0 +1,1 @@
+There is currently an issue with nose where the other namespace packages aren't loaded correctly, so these tests will all fail if they run through code that imports anything from jaraco.util.  Suggest running the tests manually for now.  See http://code.google.com/p/python-nose/issues/detail?id=197 for details of the bug.
