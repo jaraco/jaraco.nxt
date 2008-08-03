@@ -33,7 +33,7 @@ class Message(object):
 	
 	__metaclass__ = MetaMessage
 	
-	_expects_reply = False
+	expected_reply = None
 	fields = ()
 	structure = ''
 	
@@ -58,8 +58,20 @@ class Message(object):
 		return len(self.payload)
 
 	@property
-	def expects_reply(self):
-		return [0x80, 0][self._expects_reply]
+	def _expect_reply_value(self):
+		"""
+		determine the code to transmit for
+		the reply bit
+		>>> bat_msg = GetBatteryLevel()
+		>>> bat_msg.expected_reply is not None
+		True
+		>>> bat_msg._expect_reply_value
+		0
+		"""
+		suppress_reply = 0x80
+		expect_reply = 0x00
+		selector = int(bool(self.expected_reply))
+		return [suppress_reply, expect_reply][selector]
 
 	@staticmethod
 	def read(stream):
@@ -71,8 +83,8 @@ class Message(object):
 			cls = Message._messages[command]
 			is_reply = command_type == CommandTypes.reply
 			if is_reply:
-				if issubclass(cls._expects_reply, Message):
-					cls = cls._expects_reply
+				if issubclass(cls.expected_reply, Message):
+					cls = cls.expected_reply
 		except KeyError, e:
 			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
 			cls = Message
@@ -80,7 +92,7 @@ class Message(object):
 		return cls(payload)
 
 class Command(Message):
-	_expects_reply = False
+	expected_reply = None
 	_command_type = CommandTypes.direct
 	
 	def __init__(self, *args):
@@ -97,11 +109,11 @@ class Command(Message):
 
 	@property
 	def command_type(self):
-		return self.expects_reply | self._command_type
+		return self._expect_reply_value | self._command_type
 
 	@property
 	def payload(self):
-		header = struct.pack('<2B', self.expects_reply, self.command)
+		header = struct.pack('<2B', self.command_type, self.command)
 		message = header + self.get_telegram()
 		return message
 
@@ -218,7 +230,7 @@ class OutputState(Message):
 
 class GetOutputState(Command):
 	command = 0x6
-	_expects_reply = OutputState
+	expected_reply = OutputState
 	fields = ('port',)
 	structure = 'B'
 
@@ -243,7 +255,7 @@ class ResetInputScaledValue(Command):
 
 class GetInputValues(Command):
 	command = 0x7
-	_expects_reply = InputValues
+	expected_reply = InputValues
 	fields = ('port',)
 	structure = 'B'
 	
@@ -251,11 +263,11 @@ class GetInputValues(Command):
 		assert self.port in InputPort.values()
 
 class GetVersion(Command):
-	_expects_reply = True
+	expected_reply = Message
 	command = 0x88
 
 class GetInfo(Command):
-	_expects_reply = True
+	expected_reply = Message
 	command = 0x9B
 	
 class BatteryResponse(Reply):
@@ -266,7 +278,7 @@ class BatteryResponse(Reply):
 		return self.millivolts/1000.0
 
 class GetBatteryLevel(Command):
-	_expects_reply = BatteryResponse
+	expected_reply = BatteryResponse
 	# _B_attery command is B... coincidence?
 	command = 0xb
 
@@ -292,7 +304,7 @@ class CurrentProgramName(Message):
 
 class GetCurrentProgramName(Command):
 	command = 0x11
-	_expects_reply = CurrentProgramName
+	expected_reply = CurrentProgramName
 	
 class SleepTimeout(Message):
 	"value is the timeout in milliseconds"
@@ -301,7 +313,7 @@ class SleepTimeout(Message):
 
 class KeepAlive(Command):
 	command = 0xD
-	_expects_reply = SleepTimeout
+	expected_reply = SleepTimeout
 
 class MessageWrite(Command):
 	command = 0x9
@@ -352,7 +364,7 @@ class LSStatus(Message):
 
 class LSGetStatus(Command):
 	command = 0xe
-	_expects_reply = LSStatus
+	expected_reply = LSStatus
 	fields = ('port',)
 	structure = 'B'
 	
@@ -387,7 +399,7 @@ class LSReadResponse(Message):
 
 class LSRead(Command):
 	command = 0x10
-	_expects_reply = LSReadResponse
+	expected_reply = LSReadResponse
 	fields = ('port',)
 	structure = 'B'
 	
@@ -399,7 +411,7 @@ class MessageReadResponse(Message):
 	structure = 'BB60p'
 	
 class MessageRead(Command):
-	_expects_reply = MessageReadResponse
+	expected_reply = MessageReadResponse
 	command = 0x13
 	fields = 'remote_box', 'local_box', 'remove'
 	structure = 'BBB'
