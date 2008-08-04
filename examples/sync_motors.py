@@ -10,24 +10,29 @@ import time
 
 conn = Connection(5)
 
-reg_cmd = SetOutputState(
-	OutputPort.b,
+conn.send(SetOutputState(OutputPort.b))
+conn.send(SetOutputState(OutputPort.c))
+
+regulation_params = dict(
 	use_regulation=True,
 	regulation_mode=RegulationMode.motor_sync,
+	turn_ratio=100,
 	)
+run_params = dict(
+	run_state = RunState.running,
+	set_power = 75,
+	motor_on=True,
+	)
+all_params = dict(regulation_params)
+all_params.update(run_params)
+reg_cmd = SetOutputState(OutputPort.b, **all_params)
 conn.send(reg_cmd)
-reg_cmd.port = OutputPort.c
-conn.send(reg_cmd)
-
-run_cmd = reg_cmd
-#run_cmd.port = OutputPort.b
-run_cmd.run_state = RunState.running
-run_cmd.set_power = 100
-run_cmd.motor_on = True
-
+time.sleep(2)
+run_cmd = SetOutputState(OutputPort.c, **all_params)
+run_cmd.turn_ratio=5
 conn.send(run_cmd)
 
-time.sleep(2)
+time.sleep(5)
 
 stop_cmd = SetOutputState(OutputPort.b)
 conn.send(stop_cmd)
