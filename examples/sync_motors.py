@@ -2,33 +2,34 @@
 
 # $Id$
 
+# http://forums.nxtasy.org/index.php?showtopic=2553&st=20&start=20
+
 from jaraco.nxt import Connection
 from jaraco.nxt.messages import *
 import time
 
 conn = Connection(5)
 
-synced_port = OutputPort.c
-cmd = SetOutputState(
-	synced_port,
-	turn_ratio=0,
+reg_cmd = SetOutputState(
+	OutputPort.b,
+	use_regulation=True,
 	regulation_mode=RegulationMode.motor_sync,
-	motor_on=True,
-	set_power=100,
 	)
-conn.send(cmd)
+conn.send(reg_cmd)
+reg_cmd.port = OutputPort.c
+conn.send(reg_cmd)
 
-cmd = SetOutputState(OutputPort.b,
-	regulation_mode=RegulationMode.motor_sync,
-	turn_ratio=20,
-	run_state=RunState.running,
-	motor_on=True,
-	set_power=100,
-	)
-conn.send(cmd)
+run_cmd = reg_cmd
+#run_cmd.port = OutputPort.b
+run_cmd.run_state = RunState.running
+run_cmd.set_power = 100
+run_cmd.motor_on = True
+
+conn.send(run_cmd)
 
 time.sleep(2)
 
 stop_cmd = SetOutputState(OutputPort.b)
-
+conn.send(stop_cmd)
+stop_cmd = SetOutputState(OutputPort.c)
 conn.send(stop_cmd)
