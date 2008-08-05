@@ -175,6 +175,8 @@ class SetOutputState(Command):
 		assert isinstance(use_regulation, bool)
 		assert regulation_mode in RegulationMode.values(), "Invalid regulation mode %s" % regulation_mode
 		assert -100 <= turn_ratio <= 100
+		assert not (turn_ratio and regulation_mode != RegulationMode.motor_sync), "Turn ratio is only valid when regulation_mode is motor_sync"
+		assert not (turn_ratio and port == OutputPort.all), "Turn ratio is not valid for 'all' output ports"
 		assert run_state in RunState.values(), "Invalid run state %s" % run_state
 		assert tacho_limit >= 0, "Invalid Tachometer Limit %s" % tacho_limit
 		
@@ -353,6 +355,10 @@ class MessageWrite(Command):
 		return self.box_number-1
 	
 class ResetMotorPosition(Command):
+	"""
+	>>> msg = ResetMotorPosition(OutputPort.b)
+	>>> msg = ResetMotorPosition(OutputPort.c, relative=False)
+	"""
 	command = 0xa
 	fields = 'port', 'relative'
 	structure = 'BB'
@@ -361,7 +367,9 @@ class ResetMotorPosition(Command):
 		assert self.port in OutputPort.values()
 
 	def __init__(self, port, relative=True):
-		self.set(port=port, relative=relative)
+		values = vars()
+		values.pop('self')
+		self.set(values)
 
 class StopSoundPlayback(Command):
 	command = 0xc
