@@ -119,8 +119,14 @@ def _get_options():
 	options, args = parser.parse_args()
 	return options
 
+def print_voltage(controller):
+	from routine import get_voltage
+	voltage = get_voltage(controller.conn)
+	print 'Successfully connected to device; battery voltage is %f' % voltage
+
 def serve_forever():
 	controller = MotorController(_get_options())
+	print_voltage(controller)
 	while True:
 		try:
 			controller.input.dispatch_events()
