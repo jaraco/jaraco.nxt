@@ -18,7 +18,10 @@ from _enum import *
 log = logging.getLogger(__name__)
 
 class MetaMessage(type):
-	""
+	"""
+	A metaclass for message that collects meta information about each
+	of the Message classes.
+	"""
 	
 	"A map of message classes by byte code"
 	_messages = {}
@@ -29,7 +32,17 @@ class MetaMessage(type):
 			cls._messages[code] = cls
 
 class Message(object):
-	"A raw message to or from the NXT"
+	"""
+	A raw message to or from the NXT
+	
+	Attributes
+	fields: a collection of string names of the fields contained in this
+	  message.
+	structure: A Python struct format string describing the structure of
+	  the payload of this message (not including the header bytes).
+	expected_reply: The class of the expected reply message or None if
+	  no reply is to be solicited. (Can this be relegated to Command?)
+	"""
 	
 	__metaclass__ = MetaMessage
 	
@@ -75,11 +88,25 @@ class Message(object):
 
 	@staticmethod
 	def read(stream):
+		"Read a message out of the data stream"
+		
+		# The first two characters in the stream indicate the length
+		#  of the message
 		len = struct.unpack('<H', stream.read(2))[0]
+		
+		# The header of every message must contain two bytes
 		assert len >= 2
+		
+		# read the rest of the message (can't be more than 64k)
 		payload = stream.read(len)
+		
+		# read the command type and command byte
 		command_type, command = struct.unpack('<BB', payload[:2])
+		
+		# ascertain the reply class based on the header
 		cls = Message.determine_reply_class(command_type, command)
+		
+		# create a new message of the appropriate type from the data
 		return cls(payload)
 
 	@staticmethod
@@ -97,7 +124,15 @@ class Message(object):
 
 
 class Command(Message):
-	"Base class for commands to be sent to a NXT device"
+	"""
+	Base class for commands to be sent to a NXT device
+	
+	Attributes: 
+	expected_reply: set to None to indicate no reply is expected.  Otherwise, set to
+	                the class of the expected reply message (i.e. a Reply).
+	command: A numeric value between 0 and 255 representing the comma
+	"""
+	
 	expected_reply = None
 	# so far, the only command type implemented is 'direct'
 	_command_type = CommandTypes.direct
@@ -148,6 +183,12 @@ class StartProgram(Command):
 class SetOutputState(Command):
 	"""
 	>>> msg = SetOutputState(OutputPort.a)
+
+	Separate boolean parameters are supplied to create the mode_byte
+	>>> msg = SetOutputState(OutputPort.a, motor_on=True, use_regulation=True)
+	>>> msg.mode_byte
+	5
+	
 	"""
 	command = 0x04
 	fields = (
@@ -187,12 +228,12 @@ class SetOutputState(Command):
 
 	@property
 	def mode_byte(self):
-		mode_byte = reduce(operator.or_, (
-			# todo, this is probably incorrect
-			self.motor_on & OutputMode.motor_on,
-			self.use_brake & OutputMode.brake,
-			self.use_regulation & OutputMode.regulated,
-			))
+		mode_bits = (
+			self.motor_on and OutputMode.motor_on,
+			self.use_brake and OutputMode.brake,
+			self.use_regulation and OutputMode.regulated,
+		)
+		mode_byte = reduce(operator.or_, mode_bits)
 		return mode_byte
 
 class Reply(Message):
@@ -218,7 +259,7 @@ class SetInputMode(Command):
 		assert self.type in SensorType.values()
 		assert self.mode in SensorMode.values()
 
-class OutputState(Message):
+class OutputState(Reply):
 	fields = (
 		'status', 'port', 'power_set', 'mode', 'regulation_mode',
 		'turn_ratio', 'run_state', 'tacho_limit', 'tacho_count',
@@ -247,7 +288,7 @@ class GetOutputState(Command):
 	def validate_settings(self):
 		assert self.port in OutputPort.values()
 
-class InputValues(Message):
+class InputValues(Reply):
 	fields = (
 		'status', 'port', 'valid', 'calibrated',
 		'type', 'mode', 'value', 'normalized_value',
@@ -305,10 +346,11 @@ class PlayTone(Command):
 		values.pop('self')
 		self.set(values)
 
-class CurrentProgramName(Message):
+class CurrentProgramName(Reply):
 	fields = 'status', 'filename'
 	
 	def parse_values(self):
+		"Override because standard structure is inadequate"
 		self.status = self.payload[0]
 		self.filename = self.payload[1:]
 
@@ -316,7 +358,7 @@ class GetCurrentProgramName(Command):
 	command = 0x11
 	expected_reply = CurrentProgramName
 	
-class SleepTimeout(Message):
+class SleepTimeout(Reply):
 	"value is the timeout in milliseconds"
 	fields = 'status', 'value'
 	structure = 'BL'
@@ -374,7 +416,7 @@ class ResetMotorPosition(Command):
 class StopSoundPlayback(Command):
 	command = 0xc
 
-class LSStatus(Message):
+class LSStatus(Reply):
 	fields = ('status', 'num_bytes')
 	structure = 'BB'
 
@@ -409,7 +451,7 @@ class LSWrite(Command):
 
 class StatusResponse(Reply): pass
 
-class LSReadResponse(Message):
+class LSReadResponse(Reply):
 	fields = ('status', 'data')
 	structure = 'B17p'
 
@@ -422,7 +464,7 @@ class LSRead(Command):
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
-class MessageReadResponse(Message):
+class MessageReadResponse(Reply):
 	fields = 'status', 'box', 'message'
 	structure = 'BB60p'
 	
