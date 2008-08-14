@@ -104,6 +104,14 @@ class MotorController(object):
 		parser.add_option('--scale_c', type="float")
 
 def _get_options():
+	"""
+	Get options for the NXT device as well as the MotorController.
+
+	>>> options = _get_options()
+	
+	Note that the test above will fail with optparse.OptionConflictError if the options
+	ever conflict between the NXT device and the MotorController.
+	"""
 	from optparse import OptionParser
 	parser = OptionParser()
 	jaraco.nxt.add_options(parser)
