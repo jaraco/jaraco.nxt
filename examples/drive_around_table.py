@@ -11,8 +11,9 @@ import time
 
 # Constants
 table_length	 = 2850	 # in degrees of motor rotations :-)
-QuarterTurnTicks = 245	 # in motor degrees, how much is a 90° turn of the bot?
+quarter_turn_ticks = 245	 # in motor degrees, how much is a 90° turn of the bot?
 
+power_mul = 1 # my motors are upside down
 
 # Open NXT connection
 connection = Connection(3)
@@ -38,6 +39,7 @@ def wait_for_motor(conn, port):
 		status = conn.receive().run_state
 		print 'run_state is', status
 		time.sleep(.1)
+	print 'exiting wait for motor'
 
 # Start the engines, main loop begins (repeated 4 times)
 # 4 times because we got 4 equal sides of the table :-)
@@ -51,7 +53,7 @@ for j in range(4):
 			motor_on = True,
 			regulation_mode = RegulationMode.motor_sync,
 			run_state = RunState.running,
-			set_power = 75,
+			set_power = power_mul*75,
 			tacho_limit = table_length,
 			turn_ratio = 0, # straight ahead
 		),
@@ -60,7 +62,7 @@ for j in range(4):
 			motor_on = True,
 			regulation_mode = RegulationMode.motor_sync,
 			run_state = RunState.running,
-			set_power = 75,
+			set_power = power_mul*75,
 			tacho_limit = table_length,
 			turn_ratio = 0, # straight ahead
 		),
@@ -84,49 +86,43 @@ for j in range(4):
 	
 	# and again, if we don't rest relative counters, synced turning etc doesnt work...
 	
+
+	# Now please turn
 	
-"""
-%% Now please turn 
-
-	SetMotor(MOTOR_B);
-		SyncToMotor(MOTOR_C); % this means we have to set parameters only once
-		SetPower(30) % slower is more acurate
-		SetAngleLimit(QuarterTurnTicks);
-		SetTurnRatio(100) % turn right
-	SendMotorSettings();  % and GO!
-
-	% leave the bot time to start turning
-	pause(1);
+	# Build Drive commands
+	cmds = [
+		SetOutputState(
+			OutputPort.b,
+			motor_on = True,
+			regulation_mode = RegulationMode.motor_sync,
+			run_state = RunState.running,
+			set_power = power_mul*75,  # slower is more accurate
+			tacho_limit = quarter_turn_ticks,
+			turn_ratio = 100, # turn right
+		),
+		SetOutputState(
+			OutputPort.c,
+			motor_on = True,
+			regulation_mode = RegulationMode.motor_sync,
+			run_state = RunState.running,
+			set_power = power_mul*75,  # slower is more accurate
+			tacho_limit = quarter_turn_ticks,
+			turn_ratio = 100, # turn right
+		),
+	]
 	
-%% Check for the end of rotation
+	map(connection.send, cmds)
+		
+	# leave the bot time to start turning
+	time.sleep(1)
 
-	WaitForMotor(GetMotor);
+	# Check for the end of rotation
+	wait_for_motor(connection, OutputPort.b)
 	
-	% give it a little time to correct its mistakes (hey synchronisation mode :-)
-	pause(2);
+	# give it a little time to correct its mistakes (hey synchronisation
+	# mode :-)
+	time.sleep(2)
 	
-	% apparently we've stopped!
-	% then release the motors
-	StopMotor('all', 'off');
-	% if we don't do that, syncing again doesn't work
-	
-	% and again, if we don't rest relative counters, synced turning etc doesnt work...
-	ResetMotorAngle(MOTOR_B);
-	ResetMotorAngle(MOTOR_C);
-	
-%% Thats it. Repeat 4 times....
-end%for
-
-
-% Hey! End of a hard day's work
-% Just to show good style, we close down our motors again:
-StopMotor('all', 'off');
-% although this was completely unnecessary....
-
-% nice
-
-
-%% Close Bluetooth
-
-COM_CloseNXT(handle);
-"""
+	# apparently we've stopped!
+	# then release the motors
+	initialize()
