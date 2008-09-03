@@ -91,6 +91,8 @@ class MotorController(object):
 		# here, I'm disabling the motor if the output is less than 50, because
 		#  those levels of power don't seem to be able to do much to actuate
 		#  movement.
+		# I note now that the regulation mode may be useful to actuate movement when
+		#  the load is preventing movement at that power level.
 		if abs(power) > 50:
 			cmd = SetOutputState(port, motor_on=True, set_power=power, run_state=RunState.running)
 		else:
