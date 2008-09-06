@@ -155,11 +155,21 @@ class Command(Message):
 
 	@property
 	def payload(self):
+		"""
+		Assemble the payload (the portion of the message following the two-byte size).
+		The first two bytes are the command_type and command.
+		The remaining bytes, if any, are called the telegram.
+		"""
 		header = struct.pack('<2B', self.command_type, self.command)
 		message = header + self.get_telegram()
 		return message
 
 	def get_telegram(self):
+		"""
+		The telegram is the possibly empty remainder of the message
+		following the header (command type and command).
+		"""
+		# by default, validate the settings, then pack the fields according to the structure.
 		self.validate_settings()
 		values = map(lambda f: getattr(self, f), self.fields)
 		return struct.pack('<'+self.structure, *values)

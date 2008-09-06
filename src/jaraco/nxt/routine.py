@@ -14,9 +14,9 @@ import time
 from messages import *
 
 def get_voltage(conn):
-	cmd = QueryBattery()
+	cmd = GetBatteryLevel()
 	conn.send(cmd)
-	response = conn.receive(BatteryResponse)
+	response = conn.receive()
 	return response.get_voltage()
 
 def get_port(port, cls):
