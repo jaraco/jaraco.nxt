@@ -27,6 +27,7 @@ class MetaMessage(type):
 	_messages = {}
 	
 	def __init__(cls, name, bases, attrs):
+		"Store the command classes here for reference"
 		if 'command' in attrs:
 			code = attrs['command']
 			cls._messages[code] = cls
@@ -51,6 +52,11 @@ class Message(object):
 	structure = ''
 	
 	def __init__(self, payload):
+		"""
+		Normally, instantiate a subclass of Command, but it is
+		possible to create a base Message
+		>>> m = Message('\x03\x04') 
+		"""
 		self.payload = payload
 		self.parse_payload()
 
