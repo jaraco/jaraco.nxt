@@ -11,7 +11,7 @@ import time
 
 # Constants
 table_length	 = 2850	 # in degrees of motor rotations :-)
-quarter_turn_ticks = 245	 # in motor degrees, how much is a 90° turn of the bot?
+quarter_turn_ticks = 245	 # in motor degrees, how much is a 90Â° turn of the bot?
 
 power_mul = 1 # my motors are upside down
 
