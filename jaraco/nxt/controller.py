@@ -12,15 +12,13 @@ __author__='Jason R. Coombs <jaraco@jaraco.com>'
 __svnauthor__='$Author$'[9:-2]
 
 import jaraco.nxt
-from jaraco.nxt.xinput import XInputJoystick
+from jaraco.input import Joystick
 from jaraco.nxt import Connection
 from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
 
-from pyglet import event
-
 class MotorController(object):
 	"""
-	Interfaces an XInput controller with the NXT motors
+	Interfaces a jaraco.input Joystick with the NXT motors
 	
 	Maps the left thumb y axis to output port B
 	Maps the right thumb y axis to output port C
@@ -45,9 +43,9 @@ class MotorController(object):
 		if options.scale_c:
 			self.scale_c = options.scale_c
 		try:
-			self.input = XInputJoystick.enumerate_devices()[0]
+			self.input = Joystick.enumerate_devices()[0]
 		except IndexError:
-			raise RuntimeError, "Could not find any connected controllers"
+			raise RuntimeError, "Could not find any joystick controllers."
 		self.input.event(self.on_state_changed)
 
 	def on_state_changed(self, state):
