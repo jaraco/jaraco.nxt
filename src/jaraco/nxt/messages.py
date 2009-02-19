@@ -244,6 +244,12 @@ class SetOutputState(Command):
 
 	@property
 	def mode_byte(self):
+		"Assemble the 'mode' byte from instance attributes"
+		# assemble a tuple of bits that are set only
+		#  if the corresponding flag is set.
+		# For example, if self.motor_on is True, the first
+		#  bit is set to OutputMode.motor_on. Otherwise,
+		#  the first bit is set to False (0).
 		mode_bits = (
 			self.motor_on and OutputMode.motor_on,
 			self.use_brake and OutputMode.brake,
