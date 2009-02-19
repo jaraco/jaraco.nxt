@@ -38,7 +38,7 @@ setup (name = 'jaraco.nxt',
 		install_requires=[
 			'pyserial>=2.2',
 			'enum>=0.4.3',
-			'jaraco.util>=1.1',
+			'jaraco.util>=2.0',
 			'pyglet',
 		],
 		extras_require = {
