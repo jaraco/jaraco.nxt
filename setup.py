@@ -15,7 +15,7 @@ __svnauthor__ = '$Author$'[9:-2]
 __date__ = '$Date$'[7:-2]
 
 setup (name = 'jaraco.nxt',
-		version = '1.1',
+		version = '1.2',
 		description = 'Logo Mindstorms NXT Routines',
 		author = 'Jason R. Coombs',
 		author_email = 'jaraco@jaraco.com',
