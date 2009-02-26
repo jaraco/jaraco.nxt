@@ -1,0 +1,39 @@
+jaraco.nxt
+==========
+
+.. contents::
+
+Status and License
+------------------
+
+``jaraco.nxt`` implements the LEGO Mindstorms NXT Bluetooth API in Python.
+
+``jaraco.nxt`` is written by Jason R. Coombs.  It is licensed under an
+`MIT-style permissive license
+<https://svn.jaraco.com/jaraco/python/jaraco.nxt/docs/license.txt>`_.
+
+You can install it with ``easy_install jaraco.nxt``, or from the
+`subversion repository
+<https://svn.jaraco.com/jaraco/python/jaraco.nxt#egg=jaraco.nxt-dev>`_ with
+``easy_install jaraco.nxt==dev``.
+
+Changes
+-------
+
+1.2
+~~~
+
+* Added this documentation
+* Updated the project website to use PYPI directly.
+
+1.1
+~~~
+
+* Updated dependency on jaraco.util, removing many secondary dependencies.
+
+1.0
+~~~
+
+* Initial release
+* Implements complete protocol
+* Includes support for XBox 360 controller on Windows

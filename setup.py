@@ -2,24 +2,34 @@
 
 """ Setup script for building jaraco.nxt distribution
 
-Copyright © 2008 Jason R. Coombs
+Copyright © 2008-2009 Jason R. Coombs
 """
 
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup, find_packages
 
+import os
+
 __author__ = 'Jason R. Coombs <jaraco@jaraco.com>'
 __version__ = '$Rev$'[6:-2]
 __svnauthor__ = '$Author$'[9:-2]
 __date__ = '$Date$'[7:-2]
 
+long_description = open(
+	os.path.join(
+		os.path.dirname(__file__),
+		'docs',
+		'index.txt',
+	) ).read().strip()
+
 setup (name = 'jaraco.nxt',
 		version = '1.2',
 		description = 'Logo Mindstorms NXT Routines',
+		long_description = long_description,
 		author = 'Jason R. Coombs',
 		author_email = 'jaraco@jaraco.com',
-		url = 'http://www.jaraco.com/projects/jaraco.nxt',
+		url = 'http://pypi.python.org/pypi/'+name,
 		packages = find_packages(exclude=['ez_setup', 'tests', 'examples']),
 		zip_safe=True,
 		namespace_packages = ['jaraco',],
