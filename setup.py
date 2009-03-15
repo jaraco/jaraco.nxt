@@ -5,8 +5,6 @@
 Copyright © 2008-2009 Jason R. Coombs
 """
 
-from ez_setup import use_setuptools
-use_setuptools()
 from setuptools import setup, find_packages
 from jaraco.util.package import read_long_description
 
@@ -20,7 +18,7 @@ name = 'jaraco.nxt'
 setup (name = name,
 		version = '1.2',
 		description = 'Logo Mindstorms NXT Routines',
-		long_description = read_long_description(__file__),
+		long_description = read_long_description(),
 		author = 'Jason R. Coombs',
 		author_email = 'jaraco@jaraco.com',
 		url = 'http://pypi.python.org/pypi/'+name,
