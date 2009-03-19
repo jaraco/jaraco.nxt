@@ -32,10 +32,11 @@ for that example.  You may also `browse the other examples
 For more information, read the docstrings of the modules in the packages.
 
 Modules of interest are
-- jaraco.nxt.messages: implements the messages defined by the NXT Bluetooth
-  protocol.
-- jaraco.nxt.controller: demonstrates how to link input from a joystick
-  to messages controlling the motors.  Uses jaraco.input.
+
+* jaraco.nxt.messages: implements the messages defined by
+  the NXT Bluetooth protocol.
+* jaraco.nxt.controller: demonstrates how to link input from
+  a joystick to messages controlling the motors.  Uses jaraco.input.
 
 Changes
 -------
