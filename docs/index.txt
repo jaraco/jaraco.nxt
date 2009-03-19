@@ -17,6 +17,26 @@ You can install it with ``easy_install jaraco.nxt``, or from the
 <https://svn.jaraco.com/jaraco/python/jaraco.nxt#egg=jaraco.nxt-dev>`_ with
 ``easy_install jaraco.nxt==dev``.
 
+Getting Started
+---------------
+
+``jaraco.nxt`` provides a message class for sending and receiving messages
+with the Lego NXT device.  First pair the device with your PC by following
+the instructions included with the device.  Then, determine the COM port
+to which it is connected.  The hello world example is to retrieve the battery
+voltage.  You can `download the source
+<https://svn.jaraco.com/jaraco/python/jaraco.nxt/examples/get_battery_voltage.py>`_
+for that example.  You may also `browse the other examples
+<https://svn.jaraco.com/jaraco/python/jaraco.nxt/examples>`_.
+
+For more information, read the docstrings of the modules in the packages.
+
+Modules of interest are
+- jaraco.nxt.messages: implements the messages defined by the NXT Bluetooth
+  protocol.
+- jaraco.nxt.controller: demonstrates how to link input from a joystick
+  to messages controlling the motors.  Uses jaraco.input.
+
 Changes
 -------
 
@@ -25,6 +45,8 @@ Changes
 
 * Added this documentation
 * Updated the project website to use PYPI directly.
+* Moved joystick functionality to its own project - `jaraco.input
+  <http://pypi.python.org/pypi/jaraco.input>`_
 
 1.1
 ~~~
