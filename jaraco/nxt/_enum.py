@@ -28,8 +28,14 @@ class SpecEnum(object):
 
 	@classmethod
 	def dictionary(cls):
-		from jaraco.util.dictlib import DictFilter
-		return dict(DictFilter(cls.__dict__, include_pattern='[^_].*'))
+		"Return all of the class attributes that do not begin with _"
+		items = cls.__dict__.items()
+		pub_items = (
+			(key, value)
+			for (key, value) in items
+			if not key.startswith('_')
+			)
+		return dict(pub_items)
 
 	@classmethod
 	def keys(cls):

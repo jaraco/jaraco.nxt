@@ -15,7 +15,7 @@ __date__ = '$Date$'[7:-2]
 name = 'jaraco.nxt'
 
 setup (name = name,
-		version = '1.2.1',
+		version = '1.2.2',
 		description = 'Logo Mindstorms NXT Routines',
 		long_description = open('docs/index.txt').read().strip(),
 		author = 'Jason R. Coombs',
@@ -37,8 +37,6 @@ setup (name = name,
 		),
 		install_requires=[
 			'pyserial>=2.2',
-			'enum>=0.4.3',
-			'jaraco.util>=2.0',
 		],
 		extras_require = {
 			'input': 'jaraco.input>=1.0dev',

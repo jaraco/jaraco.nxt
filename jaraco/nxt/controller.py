@@ -12,7 +12,16 @@ __author__='Jason R. Coombs <jaraco@jaraco.com>'
 __svnauthor__='$Author$'[9:-2]
 
 import jaraco.nxt
-from jaraco.input import Joystick
+try:
+	from jaraco.input import Joystick
+except ImportError:
+	import sys
+	from textwrap import dedent
+	msg = dedent("""
+		%s module requires jaraco.input.
+		Unable to import jaraco.input.
+		Consider installing with easy_install jaraco.input.
+		""".strip() % __name__)
 from jaraco.nxt import Connection
 from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
 

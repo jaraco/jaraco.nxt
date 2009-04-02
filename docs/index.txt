@@ -41,6 +41,11 @@ Modules of interest are
 Changes
 -------
 
+1.2.2
+~~~~~
+
+* Removed dependence on enum and jaraco.util
+
 1.2
 ~~~
 
