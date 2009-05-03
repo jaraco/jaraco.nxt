@@ -11,9 +11,12 @@ functions to facilitate input
 __author__='Jason R. Coombs <jaraco@jaraco.com>'
 __svnauthor__='$Author$'[9:-2]
 
+from collections import defaultdict
+
 import jaraco.nxt
 try:
 	from jaraco.input import Joystick
+	from jaraco.input.win32.xinput import XINPUT_GAMEPAD
 except ImportError:
 	import sys
 	from textwrap import dedent
@@ -55,24 +58,36 @@ class MotorController(object):
 			self.input = Joystick.enumerate_devices()[0]
 		except IndexError:
 			raise RuntimeError, "Could not find any joystick controllers."
-		self.input.event(self.on_state_changed)
+		# keep track of the state of the controller (initial state
+		#  assumes all values are zero).
+		self.controller_state = defaultdict(lambda: 0)
+		
+		# register the joystick on_axis event
+		self.input.event(self.on_axis)
 
-	def on_state_changed(self, state):
+	def on_axis(self, axis, value):
+		self.controller_state[axis] = value
+		self.on_state_changed()
+		
+	def on_state_changed(self):
+		st = self.controller_state
+		
 		# let the left trigger be reverse and the right trigger be forward,
 		# use the difference to determine the motor power.
-		a_reverse = self.input.translate(state.gamepad.left_trigger, 1)
-		a_forward = self.input.translate(state.gamepad.right_trigger, 1)
+		a_reverse = st['left_trigger']
+		a_forward = st['right_trigger']
 		a_power = a_forward - a_reverse
 		a_power *= self.scale_a
 		
 		# note a_power in [-1, 1]
 		self.set_port(OutputPort.a, a_power)
 		
-		b_power = self.input.translate(state.gamepad.l_thumb_y, 2)*2
+		# multiply by 2 because it's a signed value [-0.5,0.5]
+		b_power = st['l_thumb_y']*2
 		b_power *= self.scale_b
 		self.set_port(OutputPort.b, b_power)
 		
-		c_power = self.input.translate(state.gamepad.r_thumb_y, 2)*2
+		c_power = st['r_thumb_y']*2
 		c_power *= self.scale_c
 		self.set_port(OutputPort.c, c_power)
 
