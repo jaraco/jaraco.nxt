@@ -1,5 +1,5 @@
-jaraco.nxt
-==========
+``jaraco.nxt`` - LEGO Mindstorms NXT Bluetooth API in Python
+============================================================
 
 .. contents::
 
@@ -16,6 +16,11 @@ You can install it with ``easy_install jaraco.nxt``, or from the
 `subversion repository
 <https://svn.jaraco.com/jaraco/python/jaraco.nxt#egg=jaraco.nxt-dev>`_ with
 ``easy_install jaraco.nxt==dev``.
+
+The ``jaraco.nxt`` library also can take advantage of the `jaraco input
+<http://pypi.python.org/pypi/jaraco.input>`_ 
+package.  To include it as part of the install, use the command
+``easy_install jaraco.nxt[input]``.
 
 Getting Started
 ---------------
