@@ -39,7 +39,7 @@ setup (name = name,
 			'pyserial>=2.2',
 		],
 		extras_require = {
-			'input': 'jaraco.input>=1.0dev',
+			'input': 'jaraco.input>=1.1dev',
 		},
 		dependency_links = [
 		],
