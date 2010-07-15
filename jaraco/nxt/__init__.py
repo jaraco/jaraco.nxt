@@ -14,6 +14,7 @@ Requires a bluetooth connection (and utilizes serial protocol).
 __author__='Jason R. Coombs <jaraco@jaraco.com>'
 __svnauthor__='$Author$'[9:-2]
 
+import traceback
 import logging
 
 import serial
@@ -64,7 +65,7 @@ class BluetoothDevice(Device, bluetooth.BluetoothSocket):
 		return self.recv(nbytes)
 
 	def write(self, bytes):
-		self.send(bytes)
+		bluetooth.BluetoothSocket.send(self, bytes)
 
 class DeviceNotFoundException(Exception): pass
 
@@ -80,9 +81,11 @@ class Locator:
 			try:
 				candidate.send(messages.GetBatteryLevel())
 				resp = candidate.receive()
-				yield candidate
-			except BaseException:
+			except Exception:
+				traceback.print_exc()
+			except IOError:
 				pass
+			yield candidate
 
 	def find_candidates(self):
 		for host, name in bluetooth.discover_devices(lookup_names=True):
@@ -95,7 +98,7 @@ class Locator:
 			log.debug('Attempting to connect to serial port %d', serial_port)
 			try:
 				yield Connection(serial_port)
-			except serial.serialutil.SerialException:
+			except IOError:
 				pass
 
 locator = Locator()

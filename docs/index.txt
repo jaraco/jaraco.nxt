@@ -46,6 +46,12 @@ Modules of interest are
 Changes
 -------
 
+1.3
+~~~
+
+* Added device discovery and support for Bluetooth Sockets using the
+  PyBluez package.
+
 1.2.2
 ~~~~~
 
