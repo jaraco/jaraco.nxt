@@ -51,6 +51,7 @@ Changes
 
 * Added device discovery and support for Bluetooth Sockets using the
   PyBluez package.
+* Bug fixes in messages.MessageWrite.
 
 1.2.2
 ~~~~~
