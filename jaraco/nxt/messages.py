@@ -404,11 +404,12 @@ class MessageWrite(Command):
 
 	@property
 	def Zmessage(self):
-		return ''.join(self.message, '\x00')
+		return ''.join([self.message, '\x00'])
 
 	@property
 	def message_len(self):
-		return len(self.message)
+		"message size must include null byte"
+		return len(self.Zmessage)
 		
 	def validate_settings(self):
 		assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
