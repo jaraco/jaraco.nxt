@@ -46,12 +46,16 @@ Modules of interest are
 Changes
 -------
 
+1.3.1
+~~~~~
+
+* Bug fixes in messages.MessageWrite.
+
 1.3
 ~~~
 
 * Added device discovery and support for Bluetooth Sockets using the
   PyBluez package.
-* Bug fixes in messages.MessageWrite.
 
 1.2.2
 ~~~~~

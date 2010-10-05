@@ -15,7 +15,7 @@ __date__ = '$Date$'[7:-2]
 name = 'jaraco.nxt'
 
 setup (name = name,
-		version = '1.3',
+		version = '1.3.1',
 		description = 'Logo Mindstorms NXT Routines',
 		long_description = open('docs/index.txt').read().strip(),
 		author = 'Jason R. Coombs',
