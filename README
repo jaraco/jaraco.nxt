@@ -12,11 +12,11 @@ Status and License
 
 ``jaraco.nxt`` is written by Jason R. Coombs.  It is licensed under an
 `MIT-style permissive license
-<https://svn.jaraco.com/jaraco/python/jaraco.nxt/docs/license.txt>`_.
+<http://bitbucket.org/jaraco/jaraco.nxt/raw/tip/docs/license.txt>`_.
 
 You can install it with ``easy_install jaraco.nxt``, or from the
-`subversion repository
-<https://svn.jaraco.com/jaraco/python/jaraco.nxt#egg=jaraco.nxt-dev>`_ with
+`bitbucket repository
+<http://bitbucket.org/jaraco/jaraco.nxt/get/tip.zip#egg=jaraco.nxt-dev>`_ with
 ``easy_install jaraco.nxt==dev``.
 
 The ``jaraco.nxt`` library also can take advantage of the `jaraco input
@@ -32,9 +32,9 @@ with the Lego NXT device.  First pair the device with your PC by following
 the instructions included with the device.  Then, determine the COM port
 to which it is connected.  The hello world example is to retrieve the battery
 voltage.  You can `download the source
-<https://svn.jaraco.com/jaraco/python/jaraco.nxt/examples/get_battery_voltage.py>`_
+<http://bitbucket.org/jaraco/jaraco.nxt/raw/tip/examples/get_battery_voltage.py>`_
 for that example.  You may also `browse the other examples
-<https://svn.jaraco.com/jaraco/python/jaraco.nxt/examples>`_.
+<http://bitbucket.org/jaraco/jaraco.nxt/src/tip/examples/>`_.
 
 For more information, read the docstrings of the modules in the packages.
 
