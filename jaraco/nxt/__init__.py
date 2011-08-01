@@ -98,8 +98,8 @@ class Locator:
 		for serial_port in range(10):
 			log.debug('Attempting to connect to serial port %d', serial_port)
 			try:
-				yield Connection(serial_port)
-			except IOError:
+				yield Connection(serial_port, writeTimeout=1)
+			except serial.SerialException:
 				pass
 
 locator = Locator()
