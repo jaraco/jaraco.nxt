@@ -24,8 +24,9 @@ from jaraco.nxt import messages
 try:
 	import bluetooth
 except ImportError:
-	class bluetooth:
-		class BluetoothSocket: pass
+	import types
+	bluetooth = types.ModuleType('bluetooth')
+	bluetooth.BluetoothSocket = type('BluetoothSocket', (object,), dict())
 	bluetooth.discover_devices = lambda *args, **kwargs: []
 
 log = logging.getLogger(__name__)
@@ -45,10 +46,10 @@ class Device:
 class Connection(serial.Serial, Device):
 	"""
 	A low-level connection to an NXT brick
-	
+
 	Requires that the brick is already paired with this device using
 	Bluetooth.
-	
+
 	Example usage:
 	conn = Connection('COM3')
 	"""

@@ -20,7 +20,7 @@ You can install it with ``easy_install jaraco.nxt``, or from the
 ``easy_install jaraco.nxt==dev``.
 
 The ``jaraco.nxt`` library also can take advantage of the `jaraco input
-<http://pypi.python.org/pypi/jaraco.input>`_ 
+<http://pypi.python.org/pypi/jaraco.input>`_
 package.  To include it as part of the install, use the command
 ``easy_install jaraco.nxt[input]``.
 
@@ -47,6 +47,17 @@ Modules of interest are
 
 Changes
 -------
+
+1.3.3
+~~~~~
+
+* Fixed issue in discovery when PyBluez is not installed.
+
+1.3.2
+~~~~~
+
+* Move to Mercurial repository and bitbucket hosting.
+* Added example of reading from a sensor port.
 
 1.3.1
 ~~~~~
