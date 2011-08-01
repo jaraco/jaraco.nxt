@@ -22,10 +22,10 @@ class MetaMessage(type):
 	A metaclass for message that collects meta information about each
 	of the Message classes.
 	"""
-	
+
 	"A map of message classes by byte code"
 	_messages = {}
-	
+
 	def __init__(cls, name, bases, attrs):
 		"Store the command classes here for reference"
 		if 'command' in attrs:
@@ -35,7 +35,7 @@ class MetaMessage(type):
 class Message(object):
 	"""
 	A raw message to or from the NXT
-	
+
 	Attributes
 	fields: a collection of string names of the fields contained in this
 	  message.
@@ -44,18 +44,18 @@ class Message(object):
 	expected_reply: The class of the expected reply message or None if
 	  no reply is to be solicited. (Can this be relegated to Command?)
 	"""
-	
+
 	__metaclass__ = MetaMessage
-	
+
 	expected_reply = None
 	fields = ()
 	structure = ''
-	
+
 	def __init__(self, payload):
 		"""
 		Normally, instantiate a subclass of Command, but it is
 		possible to create a base Message
-		>>> m = Message('\x03\x04') 
+		>>> m = Message('\x03\x04')
 		"""
 		self.payload = payload
 		self.parse_payload()
@@ -95,23 +95,23 @@ class Message(object):
 	@staticmethod
 	def read(stream):
 		"Read a message out of the data stream"
-		
+
 		# The first two characters in the stream indicate the length
 		#  of the message
 		len = struct.unpack('<H', stream.read(2))[0]
-		
+
 		# The header of every message must contain two bytes
 		assert len >= 2
-		
+
 		# read the rest of the message (can't be more than 64k)
 		payload = stream.read(len)
-		
+
 		# read the command type and command byte
 		command_type, command = struct.unpack('<BB', payload[:2])
-		
+
 		# ascertain the reply class based on the header
 		cls = Message.determine_reply_class(command_type, command)
-		
+
 		# create a new message of the appropriate type from the data
 		return cls(payload)
 
@@ -132,21 +132,21 @@ class Message(object):
 class Command(Message):
 	"""
 	Base class for commands to be sent to a NXT device
-	
-	Attributes: 
+
+	Attributes:
 	expected_reply: set to None to indicate no reply is expected.  Otherwise, set to
 	                the class of the expected reply message (i.e. a Reply).
 	command: A numeric value between 0 and 255 representing the comma
 	"""
-	
+
 	expected_reply = None
 	# so far, the only command type implemented is 'direct'
 	_command_type = CommandTypes.direct
-	
+
 	def __init__(self, *args):
 		assert len(args) == len(self.fields)
 		self.set(dict(zip(self.fields, args)))
-		
+
 	def set(self, dict):
 		for attr, value in dict.items():
 			setattr(self, attr, value)
@@ -182,17 +182,17 @@ class Command(Message):
 
 class StartProgram(Command):
 	command = 0x00
-	
+
 	fields = ('filename',)
 
 	@staticmethod
 	def validate_filename(filename):
 		filename_pattern = re.compile('\w{1,15}(\.\w{0,3})?')
 		assert filename_pattern.match(filename), 'invalid filename %s' % filename
-		
+
 	def validate_settings(self):
 		self.validate_filename(self.filename)
-		
+
 	def get_telegram(self):
 		return self.filename + '\x00'
 
@@ -204,7 +204,7 @@ class SetOutputState(Command):
 	>>> msg = SetOutputState(OutputPort.a, motor_on=True, use_regulation=True)
 	>>> msg.mode_byte
 	5
-	
+
 	"""
 	command = 0x04
 	fields = (
@@ -212,7 +212,7 @@ class SetOutputState(Command):
 		'turn_ratio', 'run_state', 'tacho_limit',
 		)
 	structure = 'BbBBbBL'
-	
+
 	def __init__(
 		self,
 		port,
@@ -236,10 +236,10 @@ class SetOutputState(Command):
 		assert not (turn_ratio and port == OutputPort.all), "Turn ratio is not valid for 'all' output ports"
 		assert run_state in RunState.values(), "Invalid run state %s" % run_state
 		assert tacho_limit >= 0, "Invalid Tachometer Limit %s" % tacho_limit
-		
+
 		values = vars()
 		values.pop('self')
-		
+
 		self.set(values)
 
 	@property
@@ -275,7 +275,7 @@ class SetInputMode(Command):
 	command = 0x5
 	fields = 'port', 'type', 'mode'
 	structure = 'BBB'
-	
+
 	def validate_settings(self):
 		assert self.port in range(4)
 		assert self.type in SensorType.values()
@@ -322,7 +322,7 @@ class ResetInputScaledValue(Command):
 	command = 0x8
 	fields = ('port',)
 	structure = 'B'
-	
+
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
@@ -331,7 +331,7 @@ class GetInputValues(Command):
 	expected_reply = InputValues
 	fields = ('port',)
 	structure = 'B'
-	
+
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
@@ -342,11 +342,11 @@ class GetVersion(Command):
 class GetInfo(Command):
 	expected_reply = Message
 	command = 0x9B
-	
+
 class BatteryResponse(Reply):
 	fields = 'status', 'millivolts'
 	structure = 'BH'
-	
+
 	def get_voltage(self):
 		return self.millivolts/1000.0
 
@@ -359,7 +359,7 @@ class PlayTone(Command):
 	command = 0x3
 	fields = 'frequency', 'duration'
 	structure = '2H'
-	
+
 	def validate_settings(self):
 		assert 200 <= self.frequency <= 3000
 
@@ -370,7 +370,7 @@ class PlayTone(Command):
 
 class CurrentProgramName(Reply):
 	fields = 'status', 'filename'
-	
+
 	def parse_values(self):
 		"Override because standard structure is inadequate"
 		self.status = self.payload[0]
@@ -379,7 +379,7 @@ class CurrentProgramName(Reply):
 class GetCurrentProgramName(Command):
 	command = 0x11
 	expected_reply = CurrentProgramName
-	
+
 class SleepTimeout(Reply):
 	"value is the timeout in milliseconds"
 	fields = 'status', 'value'
@@ -410,7 +410,7 @@ class MessageWrite(Command):
 	def message_len(self):
 		"message size must include null byte"
 		return len(self.Zmessage)
-		
+
 	def validate_settings(self):
 		assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
 		assert self.message_len <= 0xFF
@@ -418,7 +418,7 @@ class MessageWrite(Command):
 	@property
 	def box(self):
 		return self.box_number-1
-	
+
 class ResetMotorPosition(Command):
 	"""
 	>>> msg = ResetMotorPosition(OutputPort.b)
@@ -427,7 +427,7 @@ class ResetMotorPosition(Command):
 	command = 0xa
 	fields = 'port', 'relative'
 	structure = 'BB'
-	
+
 	def validate_settings(self):
 		assert self.port in OutputPort.values()
 
@@ -448,25 +448,25 @@ class LSGetStatus(Command):
 	expected_reply = LSStatus
 	fields = ('port',)
 	structure = 'B'
-	
+
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
 class LSWrite(Command):
 	command = 0xf
 	fields = 'port', 'data_length', 'response_length', 'data'
-	
+
 	@property
 	def structure(self):
 		return 'BBB%ds' % self.data_length
 
 	data_length = property(lambda self: len(self.data))
-	
+
 	def validate_settings(self):
 		assert self.data_length <= 16
 		assert self.response_length <= 16
 		assert self.port in OutputPort.values()
-	
+
 	def __init__(self, port, data, response_length = 0):
 		values = vars()
 		values.pop('self')
@@ -483,14 +483,14 @@ class LSRead(Command):
 	expected_reply = LSReadResponse
 	fields = ('port',)
 	structure = 'B'
-	
+
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
 class MessageReadResponse(Reply):
 	fields = 'status', 'box', 'message'
 	structure = 'BB60p'
-	
+
 class MessageRead(Command):
 	expected_reply = MessageReadResponse
 	command = 0x13
