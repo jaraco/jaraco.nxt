@@ -40,7 +40,7 @@ class SpecEnum(object):
 	@classmethod
 	def keys(cls):
 		return cls.dictionary().keys()
-		
+
 	@classmethod
 	def values(cls):
 		return cls.dictionary().values()
@@ -99,4 +99,28 @@ class SensorMode(SpecEnum):
 	angle_steps = 0xE0
 	slope_mask = 0x1F
 	mode_mask = 0xE0
-	
+
+class InputPort(int):
+	"""
+	Input ports are numbered from 0 internally and from 1 externally, so
+	model this disparity.
+
+	>>> x = InputPort(1)
+	>>> x
+	InputPort(1)
+	>>> x + 10
+	10
+	>>> InputPort(x)
+	InputPort(1)
+	"""
+	def __new__(cls, val):
+		adjusted_val = val if isinstance(val, InputPort) else val-1
+		return int.__new__(cls, adjusted_val)
+
+	def __init__(self, val):
+		assert 0 <= val <= 3, "InputPort must be between 1 and 4"
+
+	def __repr__(self):
+		class_name = self.__class__.__name__
+		val_1 = self + 1
+		return '%(class_name)s(%(val_1)s)' % vars()

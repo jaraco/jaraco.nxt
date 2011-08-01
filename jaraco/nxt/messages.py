@@ -277,7 +277,7 @@ class SetInputMode(Command):
 	structure = 'BBB'
 
 	def validate_settings(self):
-		assert self.port in range(4)
+		self.port = InputPort(self.port)
 		assert self.type in SensorType.values()
 		assert self.mode in SensorMode.values()
 
@@ -324,7 +324,7 @@ class ResetInputScaledValue(Command):
 	structure = 'B'
 
 	def validate_settings(self):
-		assert self.port in InputPort.values()
+		self.port = InputPort(self.port)
 
 class GetInputValues(Command):
 	command = 0x7
@@ -333,7 +333,7 @@ class GetInputValues(Command):
 	structure = 'B'
 
 	def validate_settings(self):
-		assert self.port in InputPort.values()
+		self.port = InputPort(self.port)
 
 class GetVersion(Command):
 	expected_reply = Message
