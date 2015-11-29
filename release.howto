@@ -1,8 +1,7 @@
 How to make a release:
 
-- send the distribution to pypi using release-package script in jaraco.util
+- Tag the commit with the version to be released
+- send the distribution to pypi python setup.py release
 
 - announce release on python-announce-list@python.org
 - announce release on mindstorms community list (forums.nxtasy.org)
-
-- bump the version in setup.py and commit
