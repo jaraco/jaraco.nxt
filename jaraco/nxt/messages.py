@@ -50,7 +50,7 @@ class Message(object):
 		"""
 		Normally, instantiate a subclass of Command, but it is
 		possible to create a base Message
-		>>> m = Message('\x03\x04')
+		>>> m = Message(b'\x03\x04')
 		"""
 		self.payload = payload
 		self.parse_payload()
@@ -58,7 +58,7 @@ class Message(object):
 	def parse_payload(self):
 		try:
 			values = struct.unpack('<'+self.structure, self.payload[2:])
-			map(lambda f,v: setattr(self, f, v), self.fields, values)
+			list(map(lambda f,v: setattr(self, f, v), self.fields, values))
 		except struct.error:
 			log.warning("Payload does not match structure")
 			log.debug("Payload is %r", self.payload)
