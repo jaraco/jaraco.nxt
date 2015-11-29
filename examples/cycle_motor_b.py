@@ -1,9 +1,12 @@
 #!python
 
-from jaraco.nxt import *
+from jaraco.nxt import Connection
 from jaraco.nxt.routine import cycle_motor
 
-conn = Connection('COM4')
-cycle_motor(conn, 'b')
+def run():
+	conn = Connection('COM4')
+	cycle_motor(conn, 'b')
 
-conn.close()
+	conn.close()
+
+__name__ == '__main__' and run()
