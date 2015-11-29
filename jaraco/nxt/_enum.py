@@ -118,4 +118,4 @@ class InputPort(int):
 	def __repr__(self):
 		class_name = self.__class__.__name__
 		val_1 = self + 1
-		return '%(class_name)s(%(val_1)s)' % vars()
+		return '%(class_name)s(%(val_1)s)' % locals()
