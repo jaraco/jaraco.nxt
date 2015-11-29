@@ -3,6 +3,11 @@ import re
 import operator
 import logging
 
+from ._enum import(
+	CommandTypes, RegulationMode, RunState, OutputPort, InputPort,
+	SensorType, OutputMode, SensorMode,
+)
+
 log = logging.getLogger(__name__)
 
 class MetaMessage(type):
@@ -111,7 +116,7 @@ class Message(object):
 			if is_reply:
 				if issubclass(cls.expected_reply, Message):
 					cls = cls.expected_reply
-		except KeyError as e:
+		except KeyError:
 			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
 			cls = Message
 		return cls
