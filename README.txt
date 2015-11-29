@@ -5,22 +5,20 @@
 
 .. contents::
 
-Status and License
-------------------
+Overview
+--------
 
 ``jaraco.nxt`` implements the LEGO Mindstorms NXT Bluetooth API in Python.
 
 ``jaraco.nxt`` is written by Jason R. Coombs.  It is licensed under an
-`MIT-style permissive license
-<http://bitbucket.org/jaraco/jaraco.nxt/raw/tip/docs/license.txt>`_.
+MIT-style permissive license.
 
-You can install it with ``easy_install jaraco.nxt``, or from the
-`bitbucket repository
-<http://bitbucket.org/jaraco/jaraco.nxt/get/tip.zip#egg=jaraco.nxt-dev>`_ with
-``easy_install jaraco.nxt==dev``.
+You can install it with ``easy_install jaraco.nxt``, or checkout the source
+from the
+`Github repository <https://github.com/jaraco/jaraco.nxt/>`_.
 
 The ``jaraco.nxt`` library also can take advantage of the `jaraco input
-<http://pypi.python.org/pypi/jaraco.input>`_
+<https://pypi.python.org/pypi/jaraco.input>`_
 package.  To include it as part of the install, use the command
 ``easy_install jaraco.nxt[input]``.
 
@@ -30,11 +28,12 @@ Getting Started
 ``jaraco.nxt`` provides a message class for sending and receiving messages
 with the Lego NXT device.  First pair the device with your PC by following
 the instructions included with the device.  Then, determine the COM port
-to which it is connected.  The hello world example is to retrieve the battery
-voltage.  You can `download the source
-<http://bitbucket.org/jaraco/jaraco.nxt/raw/tip/examples/get_battery_voltage.py>`_
-for that example.  You may also `browse the other examples
-<http://bitbucket.org/jaraco/jaraco.nxt/src/tip/examples/>`_.
+to which it is connected.  The `hello world example
+<https://github.com/jaraco/jaraco.nxt/tree/master/examples/get_battery_voltage.py>`_
+is to retrieve the battery
+voltage.  `Browse the other examples
+<https://github.com/jaraco/jaraco.nxt/tree/master/examples/>`_ for
+more inspiration.
 
 For more information, read the docstrings of the modules in the packages.
 

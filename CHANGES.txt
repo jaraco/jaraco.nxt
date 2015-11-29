@@ -2,6 +2,7 @@
 ===
 
 * Added Python 3 support. Tests pass, but many operations are untested.
+* Moved hosting to Git and Github.
 
 1.4
 ===
