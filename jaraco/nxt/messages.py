@@ -3,6 +3,8 @@ import re
 import operator
 import logging
 
+import six
+
 from ._enum import(
 	CommandTypes, RegulationMode, RunState, OutputPort, InputPort,
 	SensorType, OutputMode, SensorMode,
@@ -25,6 +27,7 @@ class MetaMessage(type):
 			code = attrs['command']
 			cls._messages[code] = cls
 
+@six.add_metaclass(MetaMessage)
 class Message(object):
 	"""
 	A raw message to or from the NXT
@@ -37,8 +40,6 @@ class Message(object):
 	expected_reply: The class of the expected reply message or None if
 	  no reply is to be solicited. (Can this be relegated to Command?)
 	"""
-
-	__metaclass__ = MetaMessage
 
 	expected_reply = None
 	fields = ()
