@@ -48,7 +48,7 @@ class MotorController(object):
 		try:
 			self.input = Joystick.enumerate_devices()[0]
 		except IndexError:
-			raise RuntimeError, "Could not find any joystick controllers."
+			raise RuntimeError("Could not find any joystick controllers.")
 		# keep track of the state of the controller (initial state
 		#  assumes all values are zero).
 		self.controller_state = defaultdict(lambda: 0)
@@ -137,7 +137,7 @@ def _get_options():
 def print_voltage(controller):
 	from routine import get_voltage
 	voltage = get_voltage(controller.conn)
-	print 'Successfully connected to device; battery voltage is %f' % voltage
+	print('Successfully connected to device; battery voltage is %f' % voltage)
 
 def serve_forever():
 	controller = MotorController(_get_options())

@@ -111,7 +111,7 @@ class Message(object):
 			if is_reply:
 				if issubclass(cls.expected_reply, Message):
 					cls = cls.expected_reply
-		except KeyError, e:
+		except KeyError as e:
 			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
 			cls = Message
 		return cls
