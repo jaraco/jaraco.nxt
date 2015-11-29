@@ -3,6 +3,7 @@
 
 * Added Python 3 support. Tests pass, but many operations are untested.
 * Moved hosting to Git and Github.
+* Fixed bug in InputPort where port 4 could not be indicated.
 
 1.4
 ===

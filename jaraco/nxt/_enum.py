@@ -107,13 +107,17 @@ class InputPort(int):
 	10
 	>>> InputPort(x)
 	InputPort(1)
+	>>> InputPort(4)
+	InputPort(4)
+	>>> InputPort(5)
+	Traceback (most recent call last):
+	...
+	AssertionError: InputPort must be between 1 and 4
 	"""
 	def __new__(cls, val):
 		adjusted_val = val if isinstance(val, InputPort) else val-1
+		assert 0 <= adjusted_val <= 3, "InputPort must be between 1 and 4"
 		return int.__new__(cls, adjusted_val)
-
-	def __init__(self, val):
-		assert 0 <= val <= 3, "InputPort must be between 1 and 4"
 
 	def __repr__(self):
 		class_name = self.__class__.__name__
