@@ -2,7 +2,6 @@ import struct
 import re
 import operator
 import logging
-from _enum import *
 
 log = logging.getLogger(__name__)
 

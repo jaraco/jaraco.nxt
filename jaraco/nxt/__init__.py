@@ -1,7 +1,3 @@
-#!python
-
-# $Id$
-
 """
 jaraco.nxt package
 
@@ -10,9 +6,6 @@ products.
 
 Requires a bluetooth connection (and utilizes serial protocol).
 """
-
-__author__='Jason R. Coombs <jaraco@jaraco.com>'
-__svnauthor__='$Author$'[9:-2]
 
 import traceback
 import logging
