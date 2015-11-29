@@ -2,6 +2,7 @@ import struct
 import re
 import operator
 import logging
+import functools
 
 import six
 
@@ -249,7 +250,7 @@ class SetOutputState(Command):
 			self.use_brake and OutputMode.brake,
 			self.use_regulation and OutputMode.regulated,
 		)
-		mode_byte = reduce(operator.or_, mode_bits)
+		mode_byte = functools.reduce(operator.or_, mode_bits)
 		return mode_byte
 
 class Reply(Message):
