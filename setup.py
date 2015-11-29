@@ -33,6 +33,7 @@ setup_params = dict(
 	),
 	install_requires=[
 		'pyserial>=2.4',
+		'six',
 	],
 	extras_require = {
 		'input': 'jaraco.input>=1.1dev',
