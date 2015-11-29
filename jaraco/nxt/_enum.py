@@ -1,7 +1,3 @@
-#!python
-
-# $Id$
-
 """
 This enum module fills a different niche than the
 enum package as found in PyPI.  In particular, it allows
@@ -21,7 +17,6 @@ True
 You can retrieve the enumerated values as a dictionary also:
 >>> MyEnum.dictionary() == {'x': 1, 'y': 2, 'z': 40}
 True
-
 """
 
 class SpecEnum(object):

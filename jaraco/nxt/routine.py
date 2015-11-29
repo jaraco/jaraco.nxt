@@ -1,14 +1,3 @@
-#!python
-
-# $Id$
-
-"""
-jaraco.nxt.routine module
-"""
-
-__author__='Jason R. Coombs <jaraco@jaraco.com>'
-__svnauthor__='$Author$'[9:-2]
-
 import time
 
 from messages import *
@@ -36,6 +25,6 @@ def cycle_motor(conn, port):
 	time.sleep(2)
 	cmd = SetOutputState(port)
 	conn.send(cmd)
-	
+
 def cycle_motor_a(conn):
 	cycle_motor(conn, 'a')

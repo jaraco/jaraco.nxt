@@ -1,14 +1,3 @@
-#!python
-
-# $Id$
-
-"""
-jaraco.nxt.messages
-"""
-
-__author__='Jason R. Coombs <jaraco@jaraco.com>'
-__svnauthor__='$Author$'[9:-2]
-
 import struct
 import re
 import operator
