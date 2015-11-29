@@ -1,3 +1,8 @@
+1.5
+===
+
+* Added Python 3 support. Tests pass, but many operations are untested.
+
 1.4
 ===
 
