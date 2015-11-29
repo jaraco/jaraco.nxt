@@ -6,16 +6,18 @@ import sys
 
 from jaraco.nxt import messages
 from jaraco.nxt import locator
+from jaraco.nxt import _enum as enum
 
 def run():
 	dev = locator.find_brick()
 
 	# read the values form this port
-	port = 1
+	port = enum.InputPort(1)
+
 	# send the GetInputValues message, which returns a
 	#  jaraco.nxt.messages.InputValues reply
 	dev.send(messages.SetInputMode(
-		1,
+		port,
 		messages.SensorType.switch,
 		messages.SensorMode.boolean,
 	))
