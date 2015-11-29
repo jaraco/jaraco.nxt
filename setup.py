@@ -2,7 +2,7 @@
 
 """ Setup script for building jaraco.nxt distribution
 
-Copyright © 2008-2010 Jason R. Coombs
+Copyright © 2008-2015 Jason R. Coombs
 """
 
 from setuptools import find_packages
@@ -11,7 +11,7 @@ name = 'jaraco.nxt'
 
 setup_params = dict(
 	name = name,
-	use_hg_version=True,
+	use_scm_version=True,
 	description = 'Logo Mindstorms NXT Routines',
 	long_description = open('README').read().strip(),
 	author = 'Jason R. Coombs',
@@ -44,7 +44,7 @@ setup_params = dict(
 	],
 	test_suite = "nose.collector",
 	setup_requires = [
-		'hgtools >= 0.4.7',
+		'setuptools_scm',
 	],
 )
 
