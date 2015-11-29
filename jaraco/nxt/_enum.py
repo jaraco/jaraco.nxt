@@ -100,13 +100,25 @@ class InputPort(int):
 	Input ports are numbered from 0 internally and from 1 externally, so
 	model this disparity.
 
-	>>> x = InputPort(1)
-	>>> x
+	>>> port1 = InputPort(1)
+
+	It's labeled as port 1
+
+	>>> port1
 	InputPort(1)
-	>>> x + 10
+
+	But behaves as the number 0
+
+	>>> port1 + 10
 	10
-	>>> InputPort(x)
+
+	It's safe to construct an InputPort from another InputPort.
+
+	>>> InputPort(port1)
 	InputPort(1)
+
+	Input ports 1-4 are allowed, but not higher.
+
 	>>> InputPort(4)
 	InputPort(4)
 	>>> InputPort(5)
