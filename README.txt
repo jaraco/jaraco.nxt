@@ -43,3 +43,10 @@ Modules of interest are
   the NXT Bluetooth protocol.
 * jaraco.nxt.controller: demonstrates how to link input from
   a joystick to messages controlling the motors.  Uses jaraco.input.
+
+Development
+-----------
+
+To develop on the project, grab the latest code with your favorite git
+client and then run ``pip install --egg -e .`` or
+``python setup.py develop``.
