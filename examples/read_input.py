@@ -14,8 +14,7 @@ def run():
 	# read the values form this port
 	port = enum.InputPort(1)
 
-	# send the GetInputValues message, which returns a
-	#  jaraco.nxt.messages.InputValues reply
+	# configure the input mode
 	dev.send(messages.SetInputMode(
 		port,
 		messages.SensorType.switch,
@@ -31,6 +30,12 @@ def run():
 		sys.stdout.write('\n')
 
 def query_status(dev, port):
+	"""
+	Send the GetInputValues message, then process the
+	jaraco.nxt.messages.InputValues reply, printing each
+	of the fields in a CSV format.
+	"""
+
 	# query for the input values and re-write the line
 	dev.send(messages.GetInputValues(port))
 	input_res = dev.receive()
