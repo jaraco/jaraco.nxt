@@ -1,10 +1,11 @@
-#!python
-
+import struct
 import logging
-logging.basicConfig(level=logging.DEBUG)
 
-from jaraco.nxt.messages import *
+from jaraco.nxt.messages import Message, BatteryResponse
 from StringIO import StringIO
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 def test_sample_battery_message():
 	sample_battery_response = '\x02\x0b\x00\x50\x00'
@@ -16,6 +17,6 @@ def test_sample_battery_message():
 
 def run():
 	test_sample_battery_message()
-	
+
 if __name__ == '__main__':
 	run()
