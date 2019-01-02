@@ -8,6 +8,7 @@ from jaraco.nxt import messages
 from jaraco.nxt import locator
 from jaraco.nxt import _enum as enum
 
+
 def run():
 	dev = locator.find_brick()
 
@@ -25,9 +26,11 @@ def run():
 	print(', '.join(field[:4] for field in messages.InputValues.fields))
 
 	try:
-		while True: query_status(dev, port)
+		while True:
+			query_status(dev, port)
 	except KeyboardInterrupt:
 		sys.stdout.write('\n')
+
 
 def query_status(dev, port):
 	"""
@@ -40,9 +43,11 @@ def query_status(dev, port):
 	dev.send(messages.GetInputValues(port))
 	input_res = dev.receive()
 	# print each of the fields
-	values = ', '.join('%4d' % getattr(input_res, field) for field in input_res.fields)
+	values = ', '.join(
+		'%4d' % getattr(input_res, field) for field in input_res.fields)
 	# carriage return but no line feed so we write over the previous line
 	sys.stdout.write('\r')
 	sys.stdout.write(values)
+
 
 __name__ == '__main__' and run()

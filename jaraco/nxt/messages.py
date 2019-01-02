@@ -6,12 +6,13 @@ import functools
 
 import six
 
-from ._enum import(
+from ._enum import (
 	CommandTypes, RegulationMode, RunState, OutputPort, InputPort,
 	SensorType, OutputMode, SensorMode,
 )
 
 log = logging.getLogger(__name__)
+
 
 class MetaMessage(type):
 	"""
@@ -28,6 +29,7 @@ class MetaMessage(type):
 			code = attrs['command']
 			cls._messages[code] = cls
 
+
 @six.add_metaclass(MetaMessage)
 class Message(object):
 	"""
@@ -35,11 +37,11 @@ class Message(object):
 
 	Attributes
 	fields: a collection of string names of the fields contained in this
-	  message.
+	message.
 	structure: A Python struct format string describing the structure of
-	  the payload of this message (not including the header bytes).
+	the payload of this message (not including the header bytes).
 	expected_reply: The class of the expected reply message or None if
-	  no reply is to be solicited. (Can this be relegated to Command?)
+	no reply is to be solicited. (Can this be relegated to Command?)
 	"""
 
 	expected_reply = None
@@ -57,8 +59,8 @@ class Message(object):
 
 	def parse_payload(self):
 		try:
-			values = struct.unpack('<'+self.structure, self.payload[2:])
-			list(map(lambda f,v: setattr(self, f, v), self.fields, values))
+			values = struct.unpack('<' + self.structure, self.payload[2:])
+			list(map(lambda f, v: setattr(self, f, v), self.fields, values))
 		except struct.error:
 			log.warning("Payload does not match structure")
 			log.debug("Payload is %r", self.payload)
@@ -119,7 +121,9 @@ class Message(object):
 				if issubclass(cls.expected_reply, Message):
 					cls = cls.expected_reply
 		except KeyError:
-			log.error("Unrecognized command 0x%02x encountered; using generic message class", command)
+			log.error(
+				"Unrecognized command 0x%02x encountered; using generic message class",
+				command)
 			cls = Message
 		return cls
 
@@ -129,8 +133,8 @@ class Command(Message):
 	Base class for commands to be sent to a NXT device
 
 	Attributes:
-	expected_reply: set to None to indicate no reply is expected.  Otherwise, set to
-	                the class of the expected reply message (i.e. a Reply).
+	expected_reply: set to None to indicate no reply is expected.
+	Otherwise, set to the class of the expected reply message (i.e. a Reply).
 	command: A numeric value between 0 and 255 representing the comma
 	"""
 
@@ -157,7 +161,8 @@ class Command(Message):
 	@property
 	def payload(self):
 		"""
-		Assemble the payload (the portion of the message following the two-byte size).
+		Assemble the payload (the portion of the message following
+		the two-byte size).
 		The first two bytes are the command_type and command.
 		The remaining bytes, if any, are called the telegram.
 		"""
@@ -170,10 +175,12 @@ class Command(Message):
 		The telegram is the possibly empty remainder of the message
 		following the header (command type and command).
 		"""
-		# by default, validate the settings, then pack the fields according to the structure.
+		# by default, validate the settings, then pack the fields
+		# according to the structure.
 		self.validate_settings()
 		values = map(lambda f: getattr(self, f), self.fields)
-		return struct.pack('<'+self.structure, *values)
+		return struct.pack('<' + self.structure, *values)
+
 
 class StartProgram(Command):
 	command = 0x00
@@ -182,7 +189,7 @@ class StartProgram(Command):
 
 	@staticmethod
 	def validate_filename(filename):
-		filename_pattern = re.compile('\w{1,15}(\.\w{0,3})?')
+		filename_pattern = re.compile(r'\w{1,15}(\.\w{0,3})?')
 		assert filename_pattern.match(filename), 'invalid filename %s' % filename
 
 	def validate_settings(self):
@@ -190,6 +197,7 @@ class StartProgram(Command):
 
 	def get_telegram(self):
 		return self.filename + '\x00'
+
 
 class SetOutputState(Command):
 	"""
@@ -205,7 +213,7 @@ class SetOutputState(Command):
 	fields = (
 		'port', 'set_power', 'mode_byte', 'regulation_mode',
 		'turn_ratio', 'run_state', 'tacho_limit',
-		)
+	)
 	structure = 'BbBBbBL'
 
 	def __init__(
@@ -218,17 +226,20 @@ class SetOutputState(Command):
 		regulation_mode=RegulationMode.idle,
 		turn_ratio=0,
 		run_state=RunState.idle,
-		tacho_limit=0, # run forever
+		tacho_limit=0,  # run forever
 	):
 		assert port in OutputPort.values(), "Invalid output port %d" % port
 		assert -100 <= set_power <= 100, "Invalid power set point %s" % set_power
 		assert isinstance(motor_on, bool)
 		assert isinstance(use_brake, bool)
 		assert isinstance(use_regulation, bool)
-		assert regulation_mode in RegulationMode.values(), "Invalid regulation mode %s" % regulation_mode
+		assert regulation_mode in RegulationMode.values(), (
+			"Invalid regulation mode %s" % regulation_mode)
 		assert -100 <= turn_ratio <= 100
-		assert not (turn_ratio and regulation_mode != RegulationMode.motor_sync), "Turn ratio is only valid when regulation_mode is motor_sync"
-		assert not (turn_ratio and port == OutputPort.all), "Turn ratio is not valid for 'all' output ports"
+		assert not (turn_ratio and regulation_mode != RegulationMode.motor_sync), (
+			"Turn ratio is only valid when regulation_mode is motor_sync")
+		assert not (turn_ratio and port == OutputPort.all), (
+			"Turn ratio is not valid for 'all' output ports")
 		assert run_state in RunState.values(), "Invalid run state %s" % run_state
 		assert tacho_limit >= 0, "Invalid Tachometer Limit %s" % tacho_limit
 
@@ -253,10 +264,12 @@ class SetOutputState(Command):
 		mode_byte = functools.reduce(operator.or_, mode_bits)
 		return mode_byte
 
+
 class Reply(Message):
 	"A simple status response"
 	fields = ('status',)
 	structure = 'B'
+
 
 class PlaySoundFile(Command):
 	command = 0x2
@@ -264,7 +277,8 @@ class PlaySoundFile(Command):
 	structure = 'B19p'
 
 	def validate_settings(self):
-		assert type(loop) is bool
+		assert type(self.loop) is bool
+
 
 class SetInputMode(Command):
 	command = 0x5
@@ -276,12 +290,13 @@ class SetInputMode(Command):
 		assert self.type in SensorType.values()
 		assert self.mode in SensorMode.values()
 
+
 class OutputState(Reply):
 	fields = (
 		'status', 'port', 'power_set', 'mode', 'regulation_mode',
 		'turn_ratio', 'run_state', 'tacho_limit', 'tacho_count',
 		'block_tacho_count', 'rotation_count',
-		)
+	)
 	structure = 'BBbBBbBLlll'
 
 	@property
@@ -296,6 +311,7 @@ class OutputState(Reply):
 	def use_regulation(self):
 		return bool(self.mode & OutputMode.regulated)
 
+
 class GetOutputState(Command):
 	command = 0x6
 	expected_reply = OutputState
@@ -305,13 +321,15 @@ class GetOutputState(Command):
 	def validate_settings(self):
 		assert self.port in OutputPort.values()
 
+
 class InputValues(Reply):
 	fields = (
 		'status', 'port', 'valid', 'calibrated',
 		'type', 'mode', 'value', 'normalized_value',
 		'scaled_value', 'calibrated_value',
-		)
+	)
 	structure = 'BBBBBBHHhh'
+
 
 class ResetInputScaledValue(Command):
 	command = 0x8
@@ -320,6 +338,7 @@ class ResetInputScaledValue(Command):
 
 	def validate_settings(self):
 		self.port = InputPort(self.port)
+
 
 class GetInputValues(Command):
 	command = 0x7
@@ -330,25 +349,30 @@ class GetInputValues(Command):
 	def validate_settings(self):
 		self.port = InputPort(self.port)
 
+
 class GetVersion(Command):
 	expected_reply = Message
 	command = 0x88
 
+
 class GetInfo(Command):
 	expected_reply = Message
 	command = 0x9B
+
 
 class BatteryResponse(Reply):
 	fields = 'status', 'millivolts'
 	structure = 'BH'
 
 	def get_voltage(self):
-		return self.millivolts/1000.0
+		return self.millivolts / 1000.0
+
 
 class GetBatteryLevel(Command):
 	expected_reply = BatteryResponse
 	# _B_attery command is B... coincidence?
 	command = 0xb
+
 
 class PlayTone(Command):
 	command = 0x3
@@ -358,10 +382,11 @@ class PlayTone(Command):
 	def validate_settings(self):
 		assert 200 <= self.frequency <= 3000
 
-	def __init__(self, frequency, duration = 100):
+	def __init__(self, frequency, duration=100):
 		values = vars()
 		values.pop('self')
 		self.set(values)
+
 
 class CurrentProgramName(Reply):
 	fields = 'status', 'filename'
@@ -371,18 +396,22 @@ class CurrentProgramName(Reply):
 		self.status = self.payload[0]
 		self.filename = self.payload[1:]
 
+
 class GetCurrentProgramName(Command):
 	command = 0x11
 	expected_reply = CurrentProgramName
+
 
 class SleepTimeout(Reply):
 	"value is the timeout in milliseconds"
 	fields = 'status', 'value'
 	structure = 'BL'
 
+
 class KeepAlive(Command):
 	command = 0xD
 	expected_reply = SleepTimeout
+
 
 class MessageWrite(Command):
 	command = 0x9
@@ -407,12 +436,14 @@ class MessageWrite(Command):
 		return len(self.Zmessage)
 
 	def validate_settings(self):
-		assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
+		assert 0 <= self.box < 10, (
+			'invalid box number %(box_number)s' % self.__dict__)
 		assert self.message_len <= 0xFF
 
 	@property
 	def box(self):
-		return self.box_number-1
+		return self.box_number - 1
+
 
 class ResetMotorPosition(Command):
 	"""
@@ -431,12 +462,15 @@ class ResetMotorPosition(Command):
 		values.pop('self')
 		self.set(values)
 
+
 class StopSoundPlayback(Command):
 	command = 0xc
+
 
 class LSStatus(Reply):
 	fields = ('status', 'num_bytes')
 	structure = 'BB'
+
 
 class LSGetStatus(Command):
 	command = 0xe
@@ -446,6 +480,7 @@ class LSGetStatus(Command):
 
 	def validate_settings(self):
 		assert self.port in InputPort.values()
+
 
 class LSWrite(Command):
 	command = 0xf
@@ -462,16 +497,20 @@ class LSWrite(Command):
 		assert self.response_length <= 16
 		assert self.port in OutputPort.values()
 
-	def __init__(self, port, data, response_length = 0):
+	def __init__(self, port, data, response_length=0):
 		values = vars()
 		values.pop('self')
 		self.set(values)
 
-class StatusResponse(Reply): pass
+
+class StatusResponse(Reply):
+	pass
+
 
 class LSReadResponse(Reply):
 	fields = ('status', 'data')
 	structure = 'B17p'
+
 
 class LSRead(Command):
 	command = 0x10
@@ -482,9 +521,11 @@ class LSRead(Command):
 	def validate_settings(self):
 		assert self.port in InputPort.values()
 
+
 class MessageReadResponse(Reply):
 	fields = 'status', 'box', 'message'
 	structure = 'BB60p'
+
 
 class MessageRead(Command):
 	expected_reply = MessageReadResponse
@@ -493,7 +534,8 @@ class MessageRead(Command):
 	structure = 'BBB'
 
 	def validate_settings(self):
-		assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
+		assert 0 <= self.box < 10, (
+			'invalid box number %(box_number)s' % self.__dict__)
 		assert self.message_len <= 0xFF
 
 	remote_box = property(lambda self: self.local_box + 0xa)

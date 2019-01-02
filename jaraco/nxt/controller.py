@@ -7,9 +7,7 @@ from collections import defaultdict
 import jaraco.nxt
 try:
 	from jaraco.input import Joystick
-	from jaraco.input.win32.xinput import XINPUT_GAMEPAD
 except ImportError:
-	import sys
 	from textwrap import dedent
 	msg = dedent("""
 		%s module requires jaraco.input.
@@ -18,6 +16,7 @@ except ImportError:
 		""".strip() % __name__)
 from jaraco.nxt import Connection
 from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
+
 
 class MotorController(object):
 	"""
@@ -29,9 +28,9 @@ class MotorController(object):
 	"""
 
 	motor_map = dict(
-		l_thumb_y = OutputPort.b,
-		r_thumb_y = OutputPort.c,
-		)
+		l_thumb_y=OutputPort.b,
+		r_thumb_y=OutputPort.c,
+	)
 	scale_exponent = .3
 	scale_a = 1
 	scale_b = 1
@@ -74,11 +73,11 @@ class MotorController(object):
 		self.set_port(OutputPort.a, a_power)
 
 		# multiply by 2 because it's a signed value [-0.5,0.5]
-		b_power = st['l_thumb_y']*2
+		b_power = st['l_thumb_y'] * 2
 		b_power *= self.scale_b
 		self.set_port(OutputPort.b, b_power)
 
-		c_power = st['r_thumb_y']*2
+		c_power = st['r_thumb_y'] * 2
 		c_power *= self.scale_c
 		self.set_port(OutputPort.c, c_power)
 
@@ -107,7 +106,8 @@ class MotorController(object):
 		# I note now that the regulation mode may be useful to actuate movement when
 		#  the load is preventing movement at that power level.
 		if abs(power) > 50:
-			cmd = SetOutputState(port, motor_on=True, set_power=power, run_state=RunState.running)
+			cmd = SetOutputState(
+				port, motor_on=True, set_power=power, run_state=RunState.running)
 		else:
 			cmd = SetOutputState(port)
 		self.conn.send(cmd)
@@ -118,13 +118,15 @@ class MotorController(object):
 		parser.add_option('--scale_b', type="float")
 		parser.add_option('--scale_c', type="float")
 
+
 def _get_options():
 	"""
 	Get options for the NXT device as well as the MotorController.
 
 	>>> options = _get_options()
 
-	Note that the test above will fail with optparse.OptionConflictError if the options
+	Note that the test above will fail with optparse.OptionConflictError
+	if the options
 	ever conflict between the NXT device and the MotorController.
 	"""
 	from optparse import OptionParser
@@ -134,10 +136,12 @@ def _get_options():
 	options, args = parser.parse_args()
 	return options
 
+
 def print_voltage(controller):
 	from routine import get_voltage
 	voltage = get_voltage(controller.conn)
 	print('Successfully connected to device; battery voltage is %f' % voltage)
+
 
 def serve_forever():
 	controller = MotorController(_get_options())
@@ -149,6 +153,6 @@ def serve_forever():
 			break
 	controller.conn.close()
 
+
 if __name__ == '__main__':
 	serve_forever()
-

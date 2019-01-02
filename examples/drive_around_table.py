@@ -1,6 +1,8 @@
 #!python
 # -*- coding: utf-8 -*-
 
+# flake8: noqa
+
 # This is a port of %% Example 3: Drive Around Table
 #  from the Matlab rwth libraries
 # In this little demo, our bot drives a square on the floor around a well known table.

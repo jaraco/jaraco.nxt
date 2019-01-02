@@ -24,8 +24,10 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
+
 def add_options(parser):
 	parser.add_option("-p", "--port")
+
 
 class Device:
 	def receive(self):
@@ -35,6 +37,7 @@ class Device:
 	def send(self, message):
 		"Send a message to the NXT"
 		self.write(str(message))
+
 
 class Connection(serial.Serial, Device):
 	"""
@@ -46,6 +49,7 @@ class Connection(serial.Serial, Device):
 	Example usage:
 	conn = Connection('COM3')
 	"""
+
 
 class BluetoothDevice(Device, bluetooth.BluetoothSocket):
 	port = 1
@@ -61,7 +65,10 @@ class BluetoothDevice(Device, bluetooth.BluetoothSocket):
 	def write(self, bytes):
 		bluetooth.BluetoothSocket.send(self, bytes)
 
-class DeviceNotFoundException(Exception): pass
+
+class DeviceNotFoundException(Exception):
+	pass
+
 
 class Locator:
 	def find_brick(self):
@@ -74,7 +81,7 @@ class Locator:
 		for candidate in self.find_candidates():
 			try:
 				candidate.send(messages.GetBatteryLevel())
-				resp = candidate.receive()
+				candidate.receive()
 			except Exception:
 				traceback.print_exc()
 			except IOError:
@@ -94,5 +101,6 @@ class Locator:
 				yield Connection(serial_port, writeTimeout=1)
 			except serial.SerialException:
 				pass
+
 
 locator = Locator()
