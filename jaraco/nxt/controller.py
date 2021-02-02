@@ -13,10 +13,10 @@ except ImportError:
 
     msg = dedent(
         """
-		%s module requires jaraco.input.
-		Unable to import jaraco.input.
-		Consider installing with easy_install jaraco.input.
-		""".strip()
+        %s module requires jaraco.input.
+        Unable to import jaraco.input.
+        Consider installing with easy_install jaraco.input.
+        """.strip()
         % __name__
     )
 from jaraco.nxt import Connection
