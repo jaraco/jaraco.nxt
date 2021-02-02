@@ -1,14 +1,14 @@
-.. image:: https://img.shields.io/pypi/v/skeleton.svg
+.. image:: https://img.shields.io/pypi/v/jaraco.nxt.svg
    :target: `PyPI link`_
 
-.. image:: https://img.shields.io/pypi/pyversions/skeleton.svg
+.. image:: https://img.shields.io/pypi/pyversions/jaraco.nxt.svg
    :target: `PyPI link`_
 
-.. _PyPI link: https://pypi.org/project/skeleton
+.. _PyPI link: https://pypi.org/project/jaraco.nxt
 
-.. image:: https://github.com/jaraco/skeleton/workflows/Automated%20Tests/badge.svg
-   :target: https://github.com/jaraco/skeleton/actions?query=workflow%3A%22Automated+Tests%22
-   :alt: Automated Tests
+.. image:: https://github.com/jaraco/jaraco.nxt/workflows/tests/badge.svg
+   :target: https://github.com/jaraco/jaraco.nxt/actions?query=workflow%3A%22tests%22
+   :alt: tests
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
