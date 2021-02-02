@@ -1,7 +1,5 @@
 import time
 
-import six
-
 from .messages import SetOutputState, GetBatteryLevel, OutputPort, RunState
 
 
@@ -13,7 +11,7 @@ def get_voltage(conn):
 
 
 def get_port(port, cls):
-    if isinstance(port, six.string_types):
+    if isinstance(port, str):
         port = getattr(cls, port)
     assert port in cls.values()
     return port

@@ -23,7 +23,7 @@ from jaraco.nxt import Connection
 from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
 
 
-class MotorController(object):
+class MotorController:
     """
     Interfaces a jaraco.input Joystick with the NXT motors
 

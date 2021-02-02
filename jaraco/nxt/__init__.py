@@ -20,7 +20,7 @@ except ImportError:
     import types
 
     bluetooth = types.ModuleType('bluetooth')
-    bluetooth.BluetoothSocket = type('BluetoothSocket', (object,), dict())
+    bluetooth.BluetoothSocket = type('BluetoothSocket', (), dict())
     bluetooth.discover_devices = lambda *args, **kwargs: []
 
 log = logging.getLogger(__name__)

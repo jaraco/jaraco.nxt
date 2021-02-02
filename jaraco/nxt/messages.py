@@ -6,8 +6,6 @@ import functools
 
 from typing import Dict, Tuple, Optional, Type
 
-import six
-
 from ._enum import (
     CommandTypes,
     RegulationMode,
@@ -38,8 +36,7 @@ class MetaMessage(type):
             cls._messages[code] = cls
 
 
-@six.add_metaclass(MetaMessage)
-class Message(object):
+class Message(metaclass=MetaMessage):
     """
     A raw message to or from the NXT
 

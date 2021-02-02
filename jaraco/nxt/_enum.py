@@ -20,7 +20,7 @@ True
 """
 
 
-class SpecEnum(object):
+class SpecEnum:
     @classmethod
     def dictionary(cls):
         "Return all of the class attributes that do not begin with _"
