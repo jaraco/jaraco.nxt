@@ -1,3 +1,8 @@
+v2.1.0
+======
+
+Refreshed package. Use PEP 420 for namespace package.
+
 2.0
 ===
 
