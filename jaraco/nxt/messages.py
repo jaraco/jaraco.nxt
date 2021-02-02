@@ -4,6 +4,8 @@ import operator
 import logging
 import functools
 
+from typing import Dict, Tuple, Optional, Type
+
 import six
 
 from ._enum import (
@@ -27,7 +29,7 @@ class MetaMessage(type):
     """
 
     "A map of message classes by byte code"
-    _messages = {}
+    _messages: Dict[int, Type['Message']] = {}
 
     def __init__(cls, name, bases, attrs):
         "Store the command classes here for reference"
@@ -50,8 +52,8 @@ class Message(object):
     no reply is to be solicited. (Can this be relegated to Command?)
     """
 
-    expected_reply = None
-    fields = ()
+    expected_reply: Optional[Type['Message']] = None
+    fields: Tuple[str, ...] = ()
     structure = ''
 
     def __init__(self, payload):
@@ -145,7 +147,6 @@ class Command(Message):
     command: A numeric value between 0 and 255 representing the comma
     """
 
-    expected_reply = None
     # so far, the only command type implemented is 'direct'
     _command_type = CommandTypes.direct
 
@@ -283,7 +284,7 @@ class SetOutputState(Command):
 
 class Reply(Message):
     "A simple status response"
-    fields = ('status',)
+    fields: Tuple[str, ...] = ('status',)
     structure = 'B'
 
 
