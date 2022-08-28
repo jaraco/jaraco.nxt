@@ -17,7 +17,8 @@
 .. .. image:: https://readthedocs.org/projects/skeleton/badge/?version=latest
 ..    :target: https://skeleton.readthedocs.io/en/latest/?badge=latest
 
-.. -*- restructuredtext -*-
+.. image:: https://img.shields.io/badge/skeleton-2022-informational
+   :target: https://blog.jaraco.com/skeleton
 
 LEGO Mindstorms NXT Bluetooth API in Python
 
