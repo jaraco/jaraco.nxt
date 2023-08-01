@@ -43,3 +43,10 @@ intersphinx_mapping = {
 autodoc_preserve_defaults = True
 
 nitpick_ignore.append(('py:class', 'jaraco.nxt.BluetoothSocket'))
+
+# until pyserial docs built on Sphinx 5
+# ref https://github.com/sphinx-doc/sphinx/issues/10198
+# intersphinx_mapping.update(
+#     pyserial='https://pyserial.readthedocs.io/en/latest/',
+# )
+nitpick_ignore.append(('py:class', 'serial.serialposix.Serial'))
