@@ -129,6 +129,7 @@ def _get_options():
     """
     Get options for the NXT device as well as the MotorController.
 
+    >>> import sys; getfixture('monkeypatch').setattr(sys, 'argv', sys.argv[:1])
     >>> options = _get_options()
 
     Note that the test above will fail with optparse.OptionConflictError
