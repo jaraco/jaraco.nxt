@@ -292,7 +292,7 @@ class PlaySoundFile(Command):
     structure = 'B19p'
 
     def validate_settings(self):
-        assert type(self.loop) is bool
+        assert isinstance(self.loop, bool)
 
 
 class SetInputMode(Command):
