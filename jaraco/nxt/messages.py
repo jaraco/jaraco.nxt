@@ -281,6 +281,7 @@ class SetOutputState(Command):
 
 class Reply(Message):
     "A simple status response"
+
     fields: Tuple[str, ...] = ('status',)
     structure = 'B'
 
@@ -433,6 +434,7 @@ class GetCurrentProgramName(Command):
 
 class SleepTimeout(Reply):
     "value is the timeout in milliseconds"
+
     fields = 'status', 'value'
     structure = 'BL'
 
