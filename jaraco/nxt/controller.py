@@ -2,6 +2,7 @@
 functions to facilitate input
 """
 
+import argparse
 from collections import defaultdict
 
 import jaraco.nxt
@@ -119,10 +120,10 @@ class MotorController:
         self.conn.send(cmd)
 
     @staticmethod
-    def add_options(parser):
-        parser.add_option('--scale_a', type="float")
-        parser.add_option('--scale_b', type="float")
-        parser.add_option('--scale_c', type="float")
+    def add_arguments(parser):
+        parser.add_argument('--scale_a', type=float)
+        parser.add_argument('--scale_b', type=float)
+        parser.add_argument('--scale_c', type=float)
 
 
 def _get_options():
@@ -136,13 +137,10 @@ def _get_options():
     if the options
     ever conflict between the NXT device and the MotorController.
     """
-    from optparse import OptionParser
-
-    parser = OptionParser()
-    jaraco.nxt.add_options(parser)
-    MotorController.add_options(parser)
-    options, args = parser.parse_args()
-    return options
+    parser = argparse.ArgumentParser()
+    jaraco.nxt.add_arguments(parser)
+    MotorController.add_arguments(parser)
+    return parser.parse_args
 
 
 def print_voltage(controller):

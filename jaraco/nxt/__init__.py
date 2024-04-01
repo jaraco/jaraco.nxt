@@ -26,8 +26,8 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 
-def add_options(parser):
-    parser.add_option("-p", "--port")
+def add_arguments(parser):
+    parser.add_argument("-p", "--port")
 
 
 class Device:
