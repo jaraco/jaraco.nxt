@@ -36,10 +36,10 @@ Getting Started
 with the Lego NXT device.  First pair the device with your PC by following
 the instructions included with the device.  Then, determine the COM port
 to which it is connected.  The `hello world example
-<https://github.com/jaraco/jaraco.nxt/tree/master/examples/get_battery_voltage.py>`_
+<https://github.com/jaraco/jaraco.nxt/tree/main/examples/get_battery_voltage.py>`_
 is to retrieve the battery
 voltage.  `Browse the other examples
-<https://github.com/jaraco/jaraco.nxt/tree/master/examples/>`_ for
+<https://github.com/jaraco/jaraco.nxt/tree/main/examples/>`_ for
 more inspiration.
 
 For more information, read the docstrings of the modules in the packages.
