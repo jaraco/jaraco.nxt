@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 extensions = [
     'sphinx.ext.autodoc',
     'jaraco.packaging.sphinx',
@@ -30,7 +33,7 @@ link_files = {
 
 # Be strict about any broken references
 nitpicky = True
-nitpick_ignore = []
+nitpick_ignore: list[tuple[str, str]] = []
 
 # Include Python intersphinx mapping to prevent failures
 # jaraco/skeleton#51
@@ -42,11 +45,26 @@ intersphinx_mapping = {
 # Preserve authored syntax for defaults
 autodoc_preserve_defaults = True
 
-nitpick_ignore.append(('py:class', 'jaraco.nxt.BluetoothSocket'))
+# Add support for linking usernames, PyPI projects, Wikipedia pages
+github_url = 'https://github.com/'
+extlinks = {
+    'user': (f'{github_url}%s', '@%s'),
+    'pypi': ('https://pypi.org/project/%s', '%s'),
+    'wiki': ('https://wikipedia.org/wiki/%s', '%s'),
+}
+extensions += ['sphinx.ext.extlinks']
+
+# local
+
+nitpick_ignore += [
+    ('py:class', 'jaraco.nxt.BluetoothSocket'),
+]
 
 # until pyserial docs built on Sphinx 5
 # ref https://github.com/sphinx-doc/sphinx/issues/10198
 # intersphinx_mapping.update(
 #     pyserial='https://pyserial.readthedocs.io/en/latest/',
 # )
-nitpick_ignore.append(('py:class', 'serial.serialposix.Serial'))
+nitpick_ignore += [
+    ('py:class', 'serial.serialposix.Serial'),
+]
