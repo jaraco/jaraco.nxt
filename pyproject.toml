@@ -16,8 +16,10 @@ classifiers = [
 	"Programming Language :: Python :: 3",
 	"Programming Language :: Python :: 3 :: Only",
 ]
-requires-python = ">=3.8"
-dependencies = ["pyserial>=2.4"]
+requires-python = ">=3.9"
+dependencies = [
+	"pyserial>=2.4",
+]
 dynamic = ["version"]
 
 [project.urls]
