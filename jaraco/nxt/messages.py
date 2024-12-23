@@ -248,12 +248,12 @@ class SetOutputState(Command):
             "Invalid regulation mode %s" % regulation_mode
         )
         assert -100 <= turn_ratio <= 100
-        assert not (
-            turn_ratio and regulation_mode != RegulationMode.motor_sync
-        ), "Turn ratio is only valid when regulation_mode is motor_sync"
-        assert not (
-            turn_ratio and port == OutputPort.all
-        ), "Turn ratio is not valid for 'all' output ports"
+        assert not (turn_ratio and regulation_mode != RegulationMode.motor_sync), (
+            "Turn ratio is only valid when regulation_mode is motor_sync"
+        )
+        assert not (turn_ratio and port == OutputPort.all), (
+            "Turn ratio is not valid for 'all' output ports"
+        )
         assert run_state in RunState.values(), "Invalid run state %s" % run_state
         assert tacho_limit >= 0, "Invalid Tachometer Limit %s" % tacho_limit
 
