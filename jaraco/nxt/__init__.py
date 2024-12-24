@@ -7,15 +7,16 @@ products.
 Requires a bluetooth connection (and utilizes serial protocol).
 """
 
-import traceback
 import logging
+import traceback
 
 import serial
 
 from jaraco.nxt import messages
 
 try:
-    import bluetooth
+    # Requires PyBluez or pybluez2 to be installed
+    import bluetooth  # type: ignore[import-not-found]
 except ImportError:
     import types
 
