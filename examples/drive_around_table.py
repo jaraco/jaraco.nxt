@@ -137,6 +137,7 @@ def run():
 
 
 if __name__ == '__main__':
-    connection = Connection(port)
+    # FIXME: ValueError: "port" must be None or a string, not <class 'int'>
+    connection = Connection(port)  # type: ignore[arg-type]
     initialize()
     run()

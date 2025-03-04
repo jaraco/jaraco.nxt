@@ -21,7 +21,7 @@ except ImportError:
         % __name__
     )
 from jaraco.nxt import Connection
-from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
+from jaraco.nxt.messages import OutputPort, RunState, SetOutputState
 
 
 class MotorController:
@@ -144,7 +144,7 @@ def _get_options():
 
 
 def print_voltage(controller):
-    from routine import get_voltage
+    from jaraco.nxt.routine import get_voltage
 
     voltage = get_voltage(controller.conn)
     print('Successfully connected to device; battery voltage is %f' % voltage)
