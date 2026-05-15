@@ -69,6 +69,7 @@ type = [
 	"pytest-mypy >= 1.0.1; platform_python_implementation != 'PyPy'",
 
 	# local
+	"types-pyserial"
 ]
 
 input = [
@@ -81,7 +82,3 @@ nxt-control = "jaraco.nxt.controller:serve_forever"
 
 
 [tool.setuptools_scm]
-
-
-[tool.pytest-enabler.mypy]
-# Disabled due to jaraco/skeleton#143
