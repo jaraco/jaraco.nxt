@@ -85,8 +85,6 @@ class Locator:
                 candidate.receive()
             except Exception:
                 traceback.print_exc()
-            except IOError:
-                pass
             yield candidate
 
     def find_candidates(self):
