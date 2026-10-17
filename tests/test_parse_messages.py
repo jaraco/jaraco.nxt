@@ -1,9 +1,8 @@
-import struct
-import logging
 import io
+import logging
+import struct
 
-from jaraco.nxt.messages import Message, BatteryResponse
-
+from jaraco.nxt.messages import BatteryResponse, Message
 
 logging.basicConfig(level=logging.DEBUG)
 
