@@ -1,0 +1,1 @@
+Fixed MessageRead, which previously failed on construction and validation.

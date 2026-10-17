@@ -565,11 +565,10 @@ class MessageRead(Command):
     structure = 'BBB'
 
     def validate_settings(self):
-        assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
-        assert self.message_len <= 0xFF
+        assert 0 <= self.local_box < 10, 'invalid box number %s' % self.box_number
 
     remote_box = property(lambda self: self.local_box + 0xA)
     local_box = property(lambda self: self.box_number - 1)
 
     def __init__(self, box_number=1, remove=True):
-        self.set(box_number=box_number, remove=remove)
+        self.set(dict(box_number=box_number, remove=remove))
