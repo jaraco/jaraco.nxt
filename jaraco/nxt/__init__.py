@@ -7,8 +7,8 @@ products.
 Requires a bluetooth connection (and utilizes serial protocol).
 """
 
-import traceback
 import logging
+import traceback
 
 import serial
 
@@ -20,7 +20,7 @@ except ImportError:
     import types
 
     bluetooth = types.ModuleType('bluetooth')
-    bluetooth.BluetoothSocket = type('BluetoothSocket', (), dict())
+    bluetooth.BluetoothSocket = type('BluetoothSocket', (), {})
     bluetooth.discover_devices = lambda *args, **kwargs: []
 
 log = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class Locator:
             try:
                 candidate.send(messages.GetBatteryLevel())
                 candidate.receive()
-            except Exception:
+            except Exception:  # noqa: BLE001 # report any failure probing a candidate
                 traceback.print_exc()
             yield candidate
 
@@ -92,7 +92,7 @@ class Locator:
             log.debug('Attempting to connect to bluetooth host %s (%s)', host, name)
             try:
                 yield BluetoothDevice(host)
-            except IOError:
+            except OSError:
                 pass
         for serial_port in range(10):
             log.debug('Attempting to connect to serial port %d', serial_port)

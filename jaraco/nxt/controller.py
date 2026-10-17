@@ -4,6 +4,7 @@ functions to facilitate input
 
 import argparse
 from collections import defaultdict
+from typing import ClassVar
 
 import jaraco.nxt
 
@@ -21,7 +22,7 @@ except ImportError:
         % __name__
     )
 from jaraco.nxt import Connection
-from jaraco.nxt.messages import SetOutputState, OutputPort, RunState
+from jaraco.nxt.messages import OutputPort, RunState, SetOutputState
 
 
 class MotorController:
@@ -33,7 +34,7 @@ class MotorController:
     Maps the left and right triggers to output port A
     """
 
-    motor_map = dict(
+    motor_map: ClassVar = dict(
         l_thumb_y=OutputPort.b,
         r_thumb_y=OutputPort.c,
     )
@@ -147,7 +148,7 @@ def print_voltage(controller):
     from .routine import get_voltage
 
     voltage = get_voltage(controller.conn)
-    print('Successfully connected to device; battery voltage is %f' % voltage)
+    print(f'Successfully connected to device; battery voltage is {voltage:f}')
 
 
 def serve_forever():

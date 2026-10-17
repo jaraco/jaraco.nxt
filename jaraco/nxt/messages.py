@@ -1,20 +1,19 @@
-import struct
-import re
-import operator
-import logging
 import functools
-
-from typing import Dict, Tuple, Optional, Type
+import logging
+import operator
+import re
+import struct
+from typing import ClassVar
 
 from ._enum import (
     CommandTypes,
+    InputPort,
+    OutputMode,
+    OutputPort,
     RegulationMode,
     RunState,
-    OutputPort,
-    InputPort,
-    SensorType,
-    OutputMode,
     SensorMode,
+    SensorType,
 )
 
 log = logging.getLogger(__name__)
@@ -27,7 +26,7 @@ class MetaMessage(type):
     """
 
     "A map of message classes by byte code"
-    _messages: Dict[int, Type['Message']] = {}
+    _messages: ClassVar[dict[int, type['Message']]] = {}
 
     def __init__(cls, name, bases, attrs):
         "Store the command classes here for reference"
@@ -49,8 +48,8 @@ class Message(metaclass=MetaMessage):
     no reply is to be solicited. (Can this be relegated to Command?)
     """
 
-    expected_reply: Optional[Type['Message']] = None
-    fields: Tuple[str, ...] = ()
+    expected_reply: type['Message'] | None = None
+    fields: tuple[str, ...] = ()
     structure = ''
 
     def __init__(self, payload):
@@ -122,9 +121,8 @@ class Message(metaclass=MetaMessage):
         try:
             cls = Message._messages[command]
             is_reply = command_type == CommandTypes.reply
-            if is_reply:
-                if issubclass(cls.expected_reply, Message):
-                    cls = cls.expected_reply
+            if is_reply and issubclass(cls.expected_reply, Message):
+                cls = cls.expected_reply
         except KeyError:
             log.error(
                 "Unrecognized command 0x%02x encountered; using generic message class",
@@ -183,7 +181,7 @@ class Command(Message):
         # by default, validate the settings, then pack the fields
         # according to the structure.
         self.validate_settings()
-        values = map(lambda f: getattr(self, f), self.fields)
+        values = (getattr(self, f) for f in self.fields)
         return struct.pack('<' + self.structure, *values)
 
 
@@ -195,7 +193,7 @@ class StartProgram(Command):
     @staticmethod
     def validate_filename(filename):
         filename_pattern = re.compile(r'\w{1,15}(\.\w{0,3})?')
-        assert filename_pattern.match(filename), 'invalid filename %s' % filename
+        assert filename_pattern.match(filename), f'invalid filename {filename}'
 
     def validate_settings(self):
         self.validate_filename(self.filename)
@@ -239,13 +237,13 @@ class SetOutputState(Command):
         run_state=RunState.idle,
         tacho_limit=0,  # run forever
     ):
-        assert port in OutputPort.values(), "Invalid output port %d" % port
-        assert -100 <= set_power <= 100, "Invalid power set point %s" % set_power
+        assert port in OutputPort.values(), f"Invalid output port {port:d}"
+        assert -100 <= set_power <= 100, f"Invalid power set point {set_power}"
         assert isinstance(motor_on, bool)
         assert isinstance(use_brake, bool)
         assert isinstance(use_regulation, bool)
         assert regulation_mode in RegulationMode.values(), (
-            "Invalid regulation mode %s" % regulation_mode
+            f"Invalid regulation mode {regulation_mode}"
         )
         assert -100 <= turn_ratio <= 100
         assert not (turn_ratio and regulation_mode != RegulationMode.motor_sync), (
@@ -254,8 +252,8 @@ class SetOutputState(Command):
         assert not (turn_ratio and port == OutputPort.all), (
             "Turn ratio is not valid for 'all' output ports"
         )
-        assert run_state in RunState.values(), "Invalid run state %s" % run_state
-        assert tacho_limit >= 0, "Invalid Tachometer Limit %s" % tacho_limit
+        assert run_state in RunState.values(), f"Invalid run state {run_state}"
+        assert tacho_limit >= 0, f"Invalid Tachometer Limit {tacho_limit}"
 
         values = vars()
         values.pop('self')
@@ -282,7 +280,7 @@ class SetOutputState(Command):
 class Reply(Message):
     "A simple status response"
 
-    fields: Tuple[str, ...] = ('status',)
+    fields: tuple[str, ...] = ('status',)
     structure = 'B'
 
 
@@ -455,11 +453,11 @@ class MessageWrite(Command):
 
     @property
     def structure(self):
-        return 'BB%ds' % self.message_len
+        return f'BB{self.message_len}s'
 
     @property
     def Zmessage(self):
-        return ''.join([self.message, '\x00'])
+        return f"{self.message}\x00"
 
     @property
     def message_len(self):
@@ -467,7 +465,7 @@ class MessageWrite(Command):
         return len(self.Zmessage)
 
     def validate_settings(self):
-        assert 0 <= self.box < 10, 'invalid box number %(box_number)s' % self.__dict__
+        assert 0 <= self.box < 10, f'invalid box number {self.box_number}'
         assert self.message_len <= 0xFF
 
     @property
@@ -519,7 +517,7 @@ class LSWrite(Command):
 
     @property
     def structure(self):
-        return 'BBB%ds' % self.data_length
+        return f'BBB{self.data_length}s'
 
     data_length = property(lambda self: len(self.data))
 
@@ -565,7 +563,7 @@ class MessageRead(Command):
     structure = 'BBB'
 
     def validate_settings(self):
-        assert 0 <= self.local_box < 10, 'invalid box number %s' % self.box_number
+        assert 0 <= self.local_box < 10, f'invalid box number {self.box_number}'
 
     remote_box = property(lambda self: self.local_box + 0xA)
     local_box = property(lambda self: self.box_number - 1)

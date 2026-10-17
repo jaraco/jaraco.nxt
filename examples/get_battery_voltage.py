@@ -6,8 +6,8 @@ def run():
     msg = messages.GetBatteryLevel()
     conn.send(msg)
     resp = conn.receive()
-    print('received response: %s' % type(resp))
-    print('battery voltage is %d mV.' % resp.millivolts)
+    print(f'received response: {type(resp)}')
+    print(f'battery voltage is {resp.millivolts:d} mV.')
 
 
 __name__ == '__main__' and run()

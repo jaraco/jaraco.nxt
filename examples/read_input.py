@@ -4,9 +4,8 @@ This example demonstrates how one might read sensor values from the brick.
 
 import sys
 
-from jaraco.nxt import messages
-from jaraco.nxt import locator
 from jaraco.nxt import _enum as enum
+from jaraco.nxt import locator, messages
 
 
 def run():
@@ -45,7 +44,7 @@ def query_status(dev, port):
     dev.send(messages.GetInputValues(port))
     input_res = dev.receive()
     # print each of the fields
-    values = ', '.join('%4d' % getattr(input_res, field) for field in input_res.fields)
+    values = ', '.join(f'{getattr(input_res, field):4d}' for field in input_res.fields)
     # carriage return but no line feed so we write over the previous line
     sys.stdout.write('\r')
     sys.stdout.write(values)

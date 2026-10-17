@@ -1,5 +1,6 @@
-from jaraco.nxt import locator
 import logging
+
+from jaraco.nxt import locator
 
 
 def run():

@@ -2,9 +2,10 @@
 
 # http://forums.nxtasy.org/index.php?showtopic=2553&st=20&start=20
 
-from jaraco.nxt import Connection
-from jaraco.nxt.messages import SetOutputState, OutputPort, RegulationMode, RunState
 import time
+
+from jaraco.nxt import Connection
+from jaraco.nxt.messages import OutputPort, RegulationMode, RunState, SetOutputState
 
 
 def run():

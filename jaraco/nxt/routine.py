@@ -1,6 +1,6 @@
 import time
 
-from .messages import SetOutputState, GetBatteryLevel, OutputPort, RunState
+from .messages import GetBatteryLevel, OutputPort, RunState, SetOutputState
 
 
 def get_voltage(conn):
