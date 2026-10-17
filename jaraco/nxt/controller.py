@@ -144,7 +144,7 @@ def _get_options():
 
 
 def print_voltage(controller):
-    from routine import get_voltage
+    from .routine import get_voltage
 
     voltage = get_voltage(controller.conn)
     print('Successfully connected to device; battery voltage is %f' % voltage)
